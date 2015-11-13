@@ -42,8 +42,7 @@ Lambda Soup has no other dependencies.
 
 ## Documentation
 
-Lambda Soup consists of one module, whose signature is documented here
-[here][docs].
+Lambda Soup consists of one module, whose signature is documented [here][docs].
 
 ## Performance
 
@@ -60,8 +59,8 @@ results on my system:
     select            13 µs      167 µs      105 µs
     select_all        26 µs      338 µs      164 µs
 
-It seems that the initial, naive implementation of `select` code could use some
-work. However, absent feedback, this does not have a very high priority. It is
+It seems that the initial, naive implementation of `select` could use some work.
+However, absent feedback, this does not have a very high priority. It is
 certainly fast enough for interactive use, for example.
 
 ## Developing
