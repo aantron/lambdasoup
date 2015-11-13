@@ -18,13 +18,13 @@ type 'a node
 
     Throughout Lambda Soup, if a function can operate on any kind of node, the
     argument is typed as [_ node]. If an element node or the entire document is
-    required, the argument type is [argument node] or [soup node],
+    required, the argument type is [element node] or [soup node],
     respectively. *)
 
 type 'a nodes
 (** Sequence of nodes. This is always instantiated as either [element nodes] or
     or [general nodes]. The sequence is {e lazy} in the sense that only as many
-    elements as needed are evaluated. This can be used with [with_stop] to
+    elements as needed are evaluated. This can be used with {!with_stop} to
     traverse only part of a document until some condition is reached. *)
 (** {2 High-level interface} *)
 
@@ -38,9 +38,10 @@ val parse : string -> soup node
 
 val select : string -> (_ node) -> element nodes
 (** [select selector node] is all the descendants of [node] matching CSS
-    selector [selector]. All CSS3 selectors are supported, with the following
-    exceptions, each of which only makes sense when formatting or displaying an
-    interactive interface:
+    selector [selector]. All
+    {{: http://www.w3.org/TR/selectors/#selectors} CSS3 selectors} are
+    supported, with the following exceptions, each of which only makes sense
+    when doing layout or displaying an interactive interface:
 
 {[
 :link, :visited, :hover, :active, :focus, :target, :lang, :enabled,
@@ -48,7 +49,11 @@ val select : string -> (_ node) -> element nodes
 ::selection, ::before, ::after
 ]}
 
-    You can see some examples of supported selectors in the
+    There is also no support for XML namespace selectors. Instead, Lambda Soup
+    supports the apparently-dropped
+    {{: http://www.w3.org/TR/2001/CR-css3-selectors-20011113/#content-selectors}
+    [:contains("foo")]} pseudo-class. You can see some examples of supported
+    selectors in the
     {{: https://github.com/aantron/lambda-soup/blob/master/test/test.ml#L47}
     tests}.
 
@@ -64,7 +69,9 @@ val select : string -> (_ node) -> element nodes
     only. *)
 
 val select_one : string -> (_ node) -> element node option
-(** Like [select], but evaluates to at most one element. *)
+(** Like [select], but evaluates to at most one element. Note that there is also
+    [R.select_one] if you don't want an option result, which is explained at
+    {!require}. *)
 
 val ($) : (_ node) -> string -> element node
 (** [node $ selector] is the same as
@@ -80,8 +87,9 @@ val ($$) : (_ node) -> string -> element nodes
 val require : 'a option -> 'a
 (** [require (Some v)] evaluates to [v], and [require None] raises [Failure].
     Many functions in Lambda Soup return options, such as [select_one] above.
-    When you know that a value will be present, [require] can be used to
-    conveniently eliminate the option and get the value out.
+    When you know, better than the type system, that a value will definitely be
+    present, [require] can be used to conveniently eliminate the option and get
+    the value out.
 
     Note that there is also a module [R] provided, which contains, for each
     function that evaluates to an option, a version of the function that is
@@ -116,8 +124,8 @@ with_stop (fun stop ->
     else None) None)
 ]}
 
-    Of course, this can be done more easily using [filter] and [first], declared
-    below, so it is only a demonstration.
+    Of course, the [fold] can be done more easily using [filter] and [first],
+    declared below, so this is only a demonstration.
  *)
 (** {2 Element access} *)
 
@@ -174,9 +182,9 @@ val leaf_text : (_ node) -> string option
       children remaining, it evaluates to [Some ""]. If there are two or more
       children remaining, it evaluates to [None].
 
-    Less formally, [leaf_text n] "drills down" to a leaf element contained under
-    [n], and extracts its text, if any. While doing this, it ignores whitespace.
-    If the choice of leaf is ambiguous, the result is [None].
+    Less formally, [leaf_text n] "drills down" to a single leaf node contained
+    under [n], and extracts its text, if any. While doing this, it ignores
+    whitespace. If the choice of leaf is ambiguous, the result is [None].
     
     Here are some examples of what [leaf_text] produces ([=>]) for various
     nodes:
@@ -194,8 +202,7 @@ some text                                =>   Some "some text"
 
 val texts : (_ node) -> string list
 (** Given a node [n], evaluates to the content of all text nodes that are
-    descendants of [n]. If [n] is itself a text node, returns its own
-    content. *)
+    descendants of [n]. If [n] is itself a text node, returns [n]'s content. *)
 
 val trimmed_texts : (_ node) -> string list
 (** Same as [texts], but all strings are passed through [String.trim], and then
@@ -203,20 +210,22 @@ val trimmed_texts : (_ node) -> string list
 (** {2 Elementary traversals} *)
 
 val children : (_ node) -> general nodes
-(** The sequence of all children of a node [n], including element and other
-    children. To get child elements, use [children |> elements]. If [n] is not
-    itself an element or the document, it does not have children, so the
+(** The sequence of all children of a node [n], including non-element children.
+    To get child elements, use [children |> elements] or [$$ "> *"]. If [n] is
+    not itself an element or the document, it cannot have children, so the
     traversal is empty. *)
 
 val descendants : (_ node) -> general nodes
 (** Sequence of all descendants of a node [n]. [n] is not considered its own
-    descendant. See [children] for additional comments. *)
+    descendant. To get only the elements, use [descendants |> elements] or
+    [$$ "*"]. As with [children], if [n] is not an element or the document, it
+    cannot have descendants, so the traversal is empty. *)
 
 val ancestors : (_ node) -> element nodes
 (** Sequence of ancestors of a node [n]. [n] is not considered its own
     ancestor. The document node is not included in the traversal. Ancestors are
-    ordered by proximity to [n], i.e. the sequence goes up the DOM tree to the
-    root. *)
+    ordered by proximity to [n], i.e. the sequence goes up the DOM tree to a
+    root element. *)
 
 val next_siblings : (_ node) -> general nodes
 (** Sequence of siblings of a node [n] that follow [n] in its parent's child
@@ -301,6 +310,12 @@ some_root_node
 |> descendants |> elements |> filter (fun e -> name e = "a")
 ]}
 
+    and
+
+{[
+some_root_node $$ "a"
+]}
+
     Note that tag names are case-insensitive.
  *)
 
@@ -317,30 +332,36 @@ some_root_node |> tag "a"
 {[
 some_root_node |> R.tag "a"
 ]}
+
+    These are equivalent to [some_root_node $? "a"] and [some_root_node $ "a"],
+    respectively.
  *)
 
 val parent : (_ node) -> element node option
 (** Given a node, evaluates to its parent element, if it has one. Note that root
     nodes do not have a parent {e element}, as their parent is the {e document}
     node (a.k.a. the soup). [parent] therefore evaluates to [None] for root
-    nodes. [parent node] is equivalent to [ancestors node |> first]. *)
+    nodes. [parent n] is equivalent to [n |> ancestors |> first]. *)
 
 val child : (_ node) -> general node option
-(** Given a node, evaluates to its first child, if it has one. *)
+(** [child n] evaluates to [n]'s first child, if [n] has one. Equivalent to
+    [n |> children |> first]. *)
 
 val child_element : (_ node) -> element node option
-(** Given a node, evaluates to its first child element, if it has one. *)
+(** [child_element n], evaluates to [n]'s first child element, if [n] has one.
+    Equivalent to [n |> children |> elements |> first]. *)
 
 val next_sibling : (_ node) -> general node option
 (** [next_sibling n] is the next sibling of [n] in [n]'s parent's child list, if
-    there is such a sibling. It is equivalent to [next_siblings n |> first]. *)
+    there is such a sibling. It is equivalent to
+    [n |> next_siblings |> first]. *)
 
 val previous_sibling : (_ node) -> general node option
 (** Like [next_sibling], but for the preceding sibling instead. *)
 
 val next_element : (_ node) -> element node option
 (** [next_element n] is the next sibling of [n] that is an element. It is
-    equivalent to [next_siblings n |> elements |> first]. *)
+    equivalent to [n |> next_siblings |> elements |> first]. *)
 
 val previous_element : (_ node) -> element node option
 (** Like [next_element], but for the preceding siblings instead. *)
@@ -359,15 +380,15 @@ val is_root : (_ node) -> bool
 (** {2 Printing} *)
 
 val pretty_print : (_ node) -> string
-(** Converts the node tree rooted at the given node to a string in an formatted
-    for easy reading. Note that this can change the whitespace structure of the
-    HTML, so pretty-printed HTML may display different that the original parsed
-    document. Pretty-printing is meant for inspection, debugging, content diffs,
-    etc., not browser viewing. *)
+(** Converts the node tree rooted at the given node to a string formatted for
+    easy reading. Note that this can change the whitespace structure of the
+    HTML, so pretty-printed HTML may display differently in a browser than the
+    original parsed document. Pretty-printing is meant for inspection,
+    debugging, content diffs, etc., not browser viewing. *)
 
 val to_string : (_ node) -> string
-(** Converts the node tree rooted at the given node to a string preserving
-    whitespace nodes and not minding human readability constraints. *)
+(** Converts the node tree rooted at the given node to a string, preserving
+    whitespace nodes and not minding human readability considerations. *)
 (** {2 Equality} *)
 
 val equal : (_ node) -> (_ node) -> bool
@@ -376,7 +397,8 @@ val equal : (_ node) -> (_ node) -> bool
     text nodes. Class attributes and other multi-valued attributes are compared
     literally: classes must be listed in the same order, with the same amount of
     whitespace in the attribute value. During comparison, adjacent text nodes
-    are merged, and empty text nodes are ignored. *)
+    are merged, and empty text nodes are ignored. This is the standard
+    normalization procedure. *)
 
 val equal_modulo_whitespace : (_ node) -> (_ node) -> bool
 (** [equal_modulo_whitespace n n'] is like [equal n n'], but all text nodes have

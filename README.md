@@ -44,6 +44,32 @@ Lambda Soup has no other dependencies.
 
 Lambda Soup consists of one module, whose signature is documented [here][docs].
 
+## Starting from scratch
+
+To (easily) use Lambda Soup interactively as in the example in this README, you
+need to do the following if you are starting from scratch:
+
+```sh
+your-package-manager install ocaml opam
+opam init
+eval `opam config env`
+make install        # In your Lambda Soup clone, for now.
+                    # It will take a bit of time to compile Ocamlnet.
+```
+
+and make sure your `~/.ocamlinit` file looks something like this:
+
+```ocaml
+let () =
+  try Topdirs.dir_directory (Sys.getenv "OCAML_TOPLEVEL_PATH")
+  with Not_found -> ()
+;;
+
+#use "topfind";;
+```
+
+Then, run `ocaml` to start the top-level, and scrape away!
+
 ## Performance
 
 I ran a simplistic performance test, comparing some

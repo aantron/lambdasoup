@@ -785,7 +785,7 @@ struct
       | "nth-last-of-type" ->
         let a, b = parse_parenthesized_value parse_modular_pattern stream in
         NthLastOfType (a, b)
-      | "content" ->
+      | "contains" ->
         let s = parse_parenthesized_value parse_quoted_string stream in
         Content s
       | "empty" -> Empty

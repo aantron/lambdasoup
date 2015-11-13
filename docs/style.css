@@ -194,12 +194,12 @@ a:hover {
     text-decoration: underline;
 }
 
-a.github {
-    font-weight: bold;
+.info a .code {
+    color: #416DFF;
 }
 
-a:not([href]) {
-    background-color: red;
+a.github {
+    font-weight: bold;
 }
 
 /* Code. */

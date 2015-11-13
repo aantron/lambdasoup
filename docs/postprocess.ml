@@ -20,8 +20,8 @@ let () =
 
   (* Remove unnecessary links to self and the (hopefully) obvious module R.
      Replace them with their content. *)
-  soup $$ "a:content(\"..\")" |> iter unwrap;
-  soup $ "a:content(\"R\")" |> unwrap;
+  soup $$ "a:contains(\"..\")" |> iter unwrap;
+  soup $ "a:contains(\"R\")" |> unwrap;
 
   (* Having problems with ocamldoc - insert a section header that it drops. *)
   create_element ~id:"2_Types" ~inner_text:"Types" "h2"
@@ -52,8 +52,8 @@ let () =
     (* Give the TOC a heading. This is only displayed at narrow widths. *)
     create_element ~inner_text:"Module contents" "p" |> append_child div;
 
-    (* Generate a nested div to hold only the links. This is necessary because
-       it has a multi-column style applied to it on narrow displays. *)
+    (* Generate a nested div to hold only the links. This element has a
+       multi-column style applied to it on narrow displays. *)
     let links = create_element ~class_:"links" "div" in
     append_child div links;
 
@@ -79,9 +79,9 @@ let () =
     |> append_child div;
 
     (* Hide the [Top] link if the display gets narrow. Since the table of
-       contents becomes statically (normally) positioned at narrow widths, it
-       will scroll off screen when scrolling away from the top, and thus be
-       useless for returning to the top. *)
+       contents becomes statically (normally) positioned at narrow widths, the
+       top link will scroll off screen when scrolling away from the top, and
+       thus become useless for returning to the top. *)
     div $ "a" |> set_attribute "class" "hide-narrow";
 
     (* Finally, evaluate to the TOC container div. *)
@@ -104,6 +104,25 @@ let () =
 
   (* Replace the title tag with a bunch of metadata from file. *)
   read_file "meta.html" |> parse |> replace (soup $ "title");
+
+  (* Fix up internal cross-references by dropping the module prefix, and
+     correcting the destination. *)
+  soup $$ "a[href^=Soup.html#]"
+  |> iter (fun a ->
+    let href = a |> R.attribute "href" in
+    String.sub href 9 (String.length href - 9)
+    |> fun v -> set_attribute "href" v a;
+
+    let text = a |> R.leaf_text in
+    let starts_with_module =
+      try String.sub text 0 5 = "Soup."
+      with Invalid_argument _ -> false
+    in
+
+    if starts_with_module then
+      (String.sub text 5 (String.length text - 5)
+      |> create_text
+      |> replace (a |> R.child |> R.child)));
 
   (* Convert the soup back to HTML and write to STDOUT. The Makefile redirects
      that to the right output file. *)

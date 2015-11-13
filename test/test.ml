@@ -26,7 +26,7 @@ let suites = [
       assert_equal (with_stop (fun stop -> stop.throw 0 |> ignore; 1)) 0;
       assert_equal (with_stop (fun stop -> stop.throw "a" |> ignore; "b")) "a");
 
-    ("nested" >:: fun _ ->
+    ("nested_stop" >:: fun _ ->
       assert_equal
         (with_stop (fun stop ->
           with_stop (fun _ ->
@@ -95,8 +95,8 @@ let suites = [
       test "ul:nth-last-of-type(1)" 1;
       test "li:first-child" 2;
       test "li:first-of-type" 2;
-      test "li:content(\"Item\")" 5;
-      test "li:content(\"5\")" 1;
+      test "li:contains(\"Item\")" 5;
+      test "li:contains(\"5\")" 1;
       test "li:empty" 0;
       test "p:empty" 1;
       test "ul li:not(:nth-child(1))" 2;
