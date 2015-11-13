@@ -1,0 +1,3 @@
+<src> or <test> or <docs>: include
+<**/*.ml*> or <**/*.native> or <**/*.byte>: package(netstring)
+<test/*.ml*> or <test/*.native>: package(oUnit)

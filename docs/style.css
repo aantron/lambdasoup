@@ -1,0 +1,213 @@
+/* Syntax elements. */
+
+.keyword {
+    font-weight: bold;
+    color: red;
+}
+
+.keywordsign {
+    color: #C04600;
+}
+
+.superscript {
+    font-size: 4;
+}
+
+.subscript {
+    font-size: 4;
+}
+
+.comment {
+    color: green;
+}
+
+.constructor {
+    color: blue;
+}
+
+.type {
+    color: #5C6585;
+}
+
+.string {
+    color : maroon;
+}
+
+/* Formatting. */
+
+.warning {
+    font-weight: bold;
+    color: red;
+}
+
+.info {
+    margin-left: 3em;
+    margin-right: 3em;
+}
+
+.param_info {
+    margin-top: 4px;
+    margin-left: 3em;
+    margin-right: 3em;
+}
+
+.code {
+    color: #465F91;
+}
+
+.info pre {
+    background-color: #f4f4f4;
+    padding: 0.75em 1em;
+}
+
+.info .code {
+    background-color: #eee;
+    padding: 0 3px;
+}
+
+.info pre .code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.typetable {
+    border-style: hidden;
+}
+
+.paramstable {
+    border-style: hidden;
+    padding: 5pt;
+}
+
+td.typefieldcomment {
+    font-size: smaller;
+}
+
+div.sig_block {
+    margin-left: 2em;
+}
+
+/* General. */
+
+body {
+    font-size: 14px;
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    line-height: 1.5;
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
+    margin: 0;
+    margin-left: 20em;
+    max-width: 50em;
+}
+
+.toc {
+    position: fixed;
+    top: 3em;
+    left: 1em;
+    background-color: white;
+}
+
+.toc p {
+    display: none;
+}
+
+.top-links {
+    float: right;
+    margin-top: 1.5em;
+    margin-right: 3em;
+}
+
+.top-links a {
+    margin-right: 1em;
+}
+
+p {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+}
+
+@media (max-width:980px) {
+    body {
+        margin-left: 1em;
+    }
+
+    .toc {
+        position: static;
+    }
+
+    .toc p {
+        display: block;
+        margin-top: 3em;
+        font-weight: bold;
+    }
+
+    .toc .hide-narrow {
+        display: none;
+    }
+
+    .toc .links br:nth-of-type(1), .toc .links br:nth-of-type(2) {
+        display: none;
+    }
+
+    .toc .links {
+        columns: 15em 2;
+        -webkit-columns: 15em 2;
+        -moz-columns: 15em 2;
+    }
+}
+
+.footer {
+    margin-top: 9em;
+    opacity: 0.3;
+}
+
+/* Sections. */
+
+h2 {
+    font-size: 150%;
+    margin-top: 3em;
+    margin-bottom: 1em;
+    line-height: 1;
+}
+
+body > pre:first-of-type {
+    margin-top: 1.5em;
+}
+
+.info {
+    margin-bottom: 1.5em;
+}
+
+.multiline-member {
+    margin-top: 1.5em;
+}
+
+/* Links. */
+
+a {
+    color: #416DFF;
+    text-decoration: none;
+}
+
+a:hover {
+    background-color: #ddd;
+    text-decoration: underline;
+}
+
+a.github {
+    font-weight: bold;
+}
+
+a:not([href]) {
+    background-color: red;
+}
+
+/* Code. */
+
+pre {
+    margin: 0;
+    overflow: auto;
+}
+
+pre.verbatim, pre.codepre {
+}

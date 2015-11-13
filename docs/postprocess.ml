@@ -1,0 +1,110 @@
+let directory = "docs"
+
+(* Using read_file.ml in test/ directory. *)
+let read_file filename =
+  filename |> Filename.concat directory |> Read_file.read_file
+
+open Soup
+
+let () =
+  (* Read ocamldoc output from STDIN. *)
+  let soup = Read_file.read_channel stdin |> parse in
+
+  (* Replace the <h1> element with a new header from header.html. *)
+  read_file "header.html" |> parse |> replace (soup $ "h1");
+
+  (* Remove the nav bar, horizontal rule, and some line breaks. *)
+  soup $ ".navbar" |> delete;
+  soup $ "hr" |> delete;
+  soup $$ "body > br" |> iter delete;
+
+  (* Remove unnecessary links to self and the (hopefully) obvious module R.
+     Replace them with their content. *)
+  soup $$ "a:content(\"..\")" |> iter unwrap;
+  soup $ "a:content(\"R\")" |> unwrap;
+
+  (* Having problems with ocamldoc - insert a section header that it drops. *)
+  create_element ~id:"2_Types" ~inner_text:"Types" "h2"
+  |> insert_after (soup $ ".top");
+
+  (* Add top text from top.html to the module description, that I don't want to
+     put in the .mli file. *)
+  read_file "top.html" |> parse |> insert_after (soup $ ".top");
+
+  (* Add a footer to the body from footer.html. *)
+  read_file "footer.html" |> parse |> append_child (soup $ "body");
+
+  (* Generate a table of contents after the module information text. For wide
+     (desktop) screens, CSS will move this to the top-left corner in fixed
+     position. *)
+  let table_of_contents =
+    (* List all the sections - get their ids and labels. *)
+    let sections =
+      soup $$ "h2"
+      |> to_list
+      |> List.map (fun h2 -> R.id h2, R.leaf_text h2)
+    in
+
+    (* Create a div to hold the entire table of contents. This is the element
+       that is conditionally positioned. *)
+    let div = create_element ~class_:"toc" "div" in
+
+    (* Give the TOC a heading. This is only displayed at narrow widths. *)
+    create_element ~inner_text:"Module contents" "p" |> append_child div;
+
+    (* Generate a nested div to hold only the links. This is necessary because
+       it has a multi-column style applied to it on narrow displays. *)
+    let links = create_element ~class_:"links" "div" in
+    append_child div links;
+
+    (* Iterate over the pairs of section id/section label. Add an anchor to the
+       div just created for each section. Include a [Top] link first. *)
+    ("", "[Top]")::sections |> List.iter (fun (id, title) ->
+      create_element ~attributes:["href", "#" ^ id] ~inner_text:title "a"
+      |> append_child links;
+      create_element "br" |> append_child links);
+
+    (* Separate the [Top] link from the rest by a line break. *)
+    create_element "br" |> insert_after (div $ "a");
+
+    (* Add some blank lines before the GitHub link. *)
+    create_element "br" |> append_child div;
+    create_element "br" |> append_child div;
+
+    (* Add the GitHub link at the bottom of the table of contents. *)
+    create_element
+      ~attributes:["href", "https://github.com/aantron/lambda-soup"]
+      ~classes:["github"; "hide-narrow"] ~inner_text:"GitHub"
+      "a"
+    |> append_child div;
+
+    (* Hide the [Top] link if the display gets narrow. Since the table of
+       contents becomes statically (normally) positioned at narrow widths, it
+       will scroll off screen when scrolling away from the top, and thus be
+       useless for returning to the top. *)
+    div $ "a" |> set_attribute "class" "hide-narrow";
+
+    (* Finally, evaluate to the TOC container div. *)
+    div
+  in
+
+  (* Place the table of contents at the end of the module description. *)
+  append_child (soup $$ ".info" |> R.nth 2) table_of_contents;
+
+  (* Find every multi-line signature member declaration, and add a class to its
+     info block. This class allow special styling with CSS, such as a wider top
+     margin. *)
+  soup $$ "pre"
+  |> filter (fun e -> e $? ".type" <> None)
+  |> filter (fun e -> e $? "br" <> None)
+  |> iter (fun e -> e $ "+ .info" |> add_class "multiline-member");
+
+  (* Clean up links in the head. *)
+  soup $$ "head link:not([rel=stylesheet])" |> iter delete;
+
+  (* Replace the title tag with a bunch of metadata from file. *)
+  read_file "meta.html" |> parse |> replace (soup $ "title");
+
+  (* Convert the soup back to HTML and write to STDOUT. The Makefile redirects
+     that to the right output file. *)
+  soup |> to_string |> print_string

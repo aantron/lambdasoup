@@ -1,0 +1,12 @@
+before_script:
+  - sudo add-apt-repository -y ppa:avsm/ppa
+  - sudo apt-get update
+  - sudo apt-get install ocaml-nox opam
+  - opam init -y
+  - eval `opam config env`
+  - opam install -y ounit
+
+script:
+  - make install
+  - make test
+  - make docs
