@@ -135,12 +135,17 @@ let has_attribute name node =
 
 let _split_attribute s =
   let rec loop index vs =
-    match String.index_from s index ' ' with
-    | exception Invalid_argument _ -> List.rev vs
-    | exception Not_found ->
-      (String.sub s index (String.length s - index))::vs |> List.rev
-    | index' when index' = index -> loop (index' + 1) vs
-    | index' -> (String.sub s index (index' - index))::vs |> loop (index' + 1)
+    if index = String.length s then List.rev vs
+    else
+      let maybe_index' =
+        try Some (String.index_from s index ' ')
+        with Not_found -> None
+      in
+      match maybe_index' with
+      | None -> (String.sub s index (String.length s - index))::vs |> List.rev
+      | Some index' when index' = index -> loop (index' + 1) vs
+      | Some index' ->
+        (String.sub s index (index' - index))::vs |> loop (index' + 1)
   in
   loop 0 []
 

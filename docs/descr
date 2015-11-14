@@ -1,8 +1,8 @@
-Easy functional HTML scraping and manipulation
+Easy functional HTML scraping and manipulation with CSS selectors
 
 Lambda Soup is an HTML scraping library inspired by Python's Beautiful Soup. It
 provides lazy traversals from HTML nodes to their parents, children, siblings,
-etc., and to nodes matching CSS selectors. The traversals can be maniplated
+etc., and to nodes matching CSS selectors. The traversals can be manipulated
 using standard functional combinators such as fold, filter, and map.
 
 The DOM tree is mutable. You can use Lambda Soup for automatic HTML rewriting in
