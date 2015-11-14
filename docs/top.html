@@ -14,7 +14,7 @@
 
   <pre><code class="code">open Soup
 
-let soup = parse some_html_from_elsewhere in
+let soup = read_channel stdin |> parse in
 
 (* Print the page title. *)
 soup $ "title" |> R.leaf_text |> print_endline;

@@ -11,7 +11,7 @@ let page : string -> string =
   let directory = "test/pages" in
   Sys.readdir directory
   |> Array.iter (fun file ->
-    let contents = file |> Filename.concat directory |> Read_file.read_file in
+    let contents = file |> Filename.concat directory |> read_file in
     Hashtbl.replace table file contents);
 
   fun page_name -> Hashtbl.find table page_name

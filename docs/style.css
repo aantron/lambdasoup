@@ -194,7 +194,7 @@ a:hover {
     text-decoration: underline;
 }
 
-.info a .code {
+a .code {
     color: #416DFF;
 }
 

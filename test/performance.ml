@@ -16,7 +16,7 @@ let measure runs name f =
 open Soup
 
 let () =
-  let html = Read_file.read_file "test/pages/google" in
+  let html = read_file "test/pages/google" in
 
   measure 1000 "parse" (fun () -> parse html |> ignore);
   let soup = parse html in

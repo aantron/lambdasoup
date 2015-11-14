@@ -1,14 +1,12 @@
-let directory = "docs"
-
-(* Using read_file.ml in test/ directory. *)
-let read_file filename =
-  filename |> Filename.concat directory |> Read_file.read_file
-
 open Soup
+
+let read_file =
+  let directory = "docs" in
+  fun filename -> filename |> Filename.concat directory |> read_file
 
 let () =
   (* Read ocamldoc output from STDIN. *)
-  let soup = Read_file.read_channel stdin |> parse in
+  let soup = read_channel stdin |> parse in
 
   (* Replace the <h1> element with a new header from header.html. *)
   read_file "header.html" |> parse |> replace (soup $ "h1");
@@ -22,10 +20,6 @@ let () =
      Replace them with their content. *)
   soup $$ "a:contains(\"..\")" |> iter unwrap;
   soup $ "a:contains(\"R\")" |> unwrap;
-
-  (* Having problems with ocamldoc - insert a section header that it drops. *)
-  create_element ~id:"2_Types" ~inner_text:"Types" "h2"
-  |> insert_after (soup $ ".top");
 
   (* Add top text from top.html to the module description, that I don't want to
      put in the .mli file. *)
@@ -126,4 +120,4 @@ let () =
 
   (* Convert the soup back to HTML and write to STDOUT. The Makefile redirects
      that to the right output file. *)
-  soup |> to_string |> print_string
+  soup |> to_string |> write_channel stdout

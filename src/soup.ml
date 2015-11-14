@@ -1216,3 +1216,36 @@ struct
   let previous_element n =
     previous_element n |> _require_internal "Soup.R.previous_element: None"
 end
+
+let read_channel channel =
+  let buffer = Buffer.create 65536 in
+
+  let rec repeat () = Buffer.add_channel buffer channel 1; repeat () in
+
+  try repeat ()
+  with End_of_file -> Buffer.contents buffer
+
+let read_file path =
+  let channel = open_in path in
+
+  try
+    let text = read_channel channel in
+    close_in channel;
+    text
+
+  with exn ->
+    close_in_noerr channel;
+    raise exn
+
+let write_channel = output_string
+
+let write_file path data =
+  let channel = open_out path in
+
+  try
+    write_channel channel data;
+    close_out channel
+
+  with exn ->
+    close_out_noerr channel;
+    raise exn

@@ -4,6 +4,10 @@
 
 (** Easy functional HTML scraping and manipulation for OCaml. *)
 
+
+
+(** {2 Types} *)
+
 type element
 type general
 type soup
@@ -26,6 +30,9 @@ type 'a nodes
     or [general nodes]. The sequence is {e lazy} in the sense that only as many
     elements as needed are evaluated. This can be used with {!with_stop} to
     traverse only part of a document until some condition is reached. *)
+
+
+
 (** {2 High-level interface} *)
 
 val parse : string -> soup node
@@ -82,6 +89,9 @@ val ($?) : (_ node) -> string -> element node option
 
 val ($$) : (_ node) -> string -> element nodes
 (** [node $$ selector] is the same as [node |> select selector]. *)
+
+
+
 (** {2 Options} *)
 
 val require : 'a option -> 'a
@@ -100,6 +110,9 @@ val require : 'a option -> 'a
     As an alternative to using [require] and [R], consider using an option
     monad.
  *)
+
+
+
 (** {2 Early termination} *)
 
 type 'a stop = {throw : 'b. 'a -> 'b}
@@ -127,6 +140,9 @@ with_stop (fun stop ->
     Of course, the [fold] can be done more easily using [filter] and [first],
     declared below, so this is only a demonstration.
  *)
+
+
+
 (** {2 Element access} *)
 
 val name : element node -> string
@@ -170,6 +186,9 @@ val elements : (_ nodes) -> element nodes
 
 val is_element : (_ node) -> bool
 (** Evalautes to [true] if and only if the given node is an element. *)
+
+
+
 (** {2 Content access} *)
 
 val leaf_text : (_ node) -> string option
@@ -207,6 +226,9 @@ val texts : (_ node) -> string list
 val trimmed_texts : (_ node) -> string list
 (** Same as [texts], but all strings are passed through [String.trim], and then
     all empty strings are filtered out. *)
+
+
+
 (** {2 Elementary traversals} *)
 
 val children : (_ node) -> general nodes
@@ -236,6 +258,9 @@ val previous_siblings : (_ node) -> general nodes
     list. The sequence is ordered according to proximity to [n], i.e. the
     nearest node to [n] is first. This is the opposite order of these nodes in
     the parent's child list. *)
+
+
+
 (** {2 Combinators} *)
 
 val fold : ('a -> 'b node -> 'a) -> 'a -> 'b nodes -> 'a
@@ -264,6 +289,9 @@ val iter : ('a node -> unit) -> 'a nodes -> unit
 
 val to_list : 'a nodes -> 'a node list
 (** Converts the given node sequence to a list. *)
+
+
+
 (** {2 Projection} *)
 
 val nth : int -> 'a nodes -> 'a node option
@@ -292,6 +320,9 @@ val index_of_element : element node -> int
     list. That is, the index of the given element when the parent's non-element
     children are disregarded. The index is 1-based, in line with CSS
     convention. *)
+
+
+
 (** {2 Convenience} *)
 
 val tags : string -> (_ node) -> element nodes
@@ -377,6 +408,9 @@ val is_root : (_ node) -> bool
 (** Evaluates to [true] if and only if the given node is not a soup (document)
     node, and either has no parent, or its parent is a soup node. In other
     words, determines whether the node is a top-level non-document node. *)
+
+
+
 (** {2 Printing} *)
 
 val pretty_print : (_ node) -> string
@@ -389,6 +423,9 @@ val pretty_print : (_ node) -> string
 val to_string : (_ node) -> string
 (** Converts the node tree rooted at the given node to a string, preserving
     whitespace nodes and not minding human readability considerations. *)
+
+
+
 (** {2 Equality} *)
 
 val equal : (_ node) -> (_ node) -> bool
@@ -405,6 +442,9 @@ val equal_modulo_whitespace : (_ node) -> (_ node) -> bool
     their values passed through [String.trim]. Nodes that become empty are then
     ignored for the purpose of comparison, as in [equal]. This is analogous to
     the operation of [trimmed_texts]. *)
+
+
+
 (** {2 Mutation} *)
 
 val create_element :
@@ -511,6 +551,9 @@ val add_class : string -> element node -> unit
 val remove_class : string -> element node -> unit
 (** [remove_class c element] removes class [c] from [element], if [element] has
     class [c]. *)
+
+
+
 (** {2 Option convenience module} *)
 
 (** For each function [f] in Lambda Soup whose result type is an option,
@@ -536,3 +579,54 @@ sig
   val next_element : (_ node) -> element node
   val previous_element : (_ node) -> element node
 end
+
+
+
+(** {2 I/O}
+
+    Lambda Soup is not an I/O library. However, it provides a few simple helpers
+    based on standard I/O functions in
+    {{:http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html#6_Inputoutput}
+    [Pervasives]}. These should not be used for "serious" code. They are only
+    for when you need to get something done quickly, and/or don't care about
+    corner cases or excellent reliability. In such cases, they allow you to
+    avoid writing I/O wrappers or using additional libraries.
+
+    Using these, you can write little command-line scrapers and filters:
+
+{[
+let () =
+  let soup = read_channel stdin |> parse in
+  let () = (* ...do things to soup... *) in
+
+  soup $ "div.view-count" |> R.leaf_text |> print_endline
+  (* ...or... *)
+  soup |> to_string |> write_channel stdout
+]}
+
+    If the above is compiled to a file [scrape], you can then run
+
+{[
+curl -L "http://location.com" | ./scrape
+]}
+
+    to get the view count or transformed HTML, respectively.
+ *)
+
+val read_file : string -> string
+(** Reads the entire contents of the file with the given path. Raises
+    [Sys_error] on failure. *)
+
+val read_channel : in_channel -> string
+(** Reads all bytes from the given channel. *)
+
+val write_file : string -> string -> unit
+(** [write_file path data] writes [data] to the file given by [path]. If the
+    file already exists, it is truncated (erased). If you want to append to
+    file, use
+    {{: http://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html#VALopen_out_gen}
+    [open_out_gen]} with the necessary flags, and pass the resulting channel to
+    [write_channel]. Raises [Sys_error] on failure. *)
+
+val write_channel : out_channel -> string -> unit
+(** Writes the given data to the given channel. *)
