@@ -2,6 +2,52 @@
    See docs/LICENSE for details, or visit
    https://github.com/aantron/lambda-soup. *)
 
+(* Shadowing/defining raise_notrace, to support pre-4.02 compilers. Still using
+   the identifier raise_notrace in the code below, so this definition can simply
+   be removed if/when support for pre-4.02 compilers is dropped, and the code
+   will use the real raise_notrace. *)
+let raise_notrace = raise
+
+(* Shadowing/defining |>, in a similar way to raise_notrace. This is for
+   pre-4.01 compilers. *)
+let (|>) x f = f x
+
+(* Same as above. For pre-4.00. *)
+module List =
+struct
+  include List
+
+  let iteri f l = List.fold_left (fun i v -> f i v; i + 1) 0 l |> ignore
+end
+
+module String =
+struct
+  include String
+
+  let trim =
+    let whitespace = " \t\n\r" in
+    fun s ->
+      let rec measure_prefix index =
+        if index = String.length s then index
+        else
+          if String.contains whitespace s.[index] then
+            measure_prefix (index + 1)
+          else index
+      in
+      let prefix_length = measure_prefix 0 in
+      let s = String.sub s prefix_length (String.length s - prefix_length) in
+
+      let rec measure_suffix rindex =
+        if rindex = String.length s then rindex
+        else
+          if String.contains whitespace s.[String.length s - rindex - 1] then
+            measure_suffix (rindex + 1)
+          else rindex
+      in
+      let suffix_length = measure_suffix 0 in
+      String.sub s 0 (String.length s - suffix_length)
+end
+
 type element = unit
 type general = unit
 type soup = unit
