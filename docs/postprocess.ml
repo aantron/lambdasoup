@@ -97,6 +97,14 @@ let () =
   |> filter (fun e -> e $? "br" <> None)
   |> iter (fun e -> e $ "+ .info" |> add_class "multiline-member");
 
+  (* Find every section that has additional text after the title, and add a
+     class to the last element of such text. This is used by CSS to increase
+     spacing. *)
+  soup $$ "h2" |> iter (fun h2 ->
+    let e = h2 $ "~ pre:not(.codepre)" |> R.previous_element in
+    if name e = "h2" then ()
+    else add_class "end-of-section-text" e);
+
   (* Clean up links in the head. *)
   soup $$ "head link:not([rel=stylesheet])" |> iter delete;
 

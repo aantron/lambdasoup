@@ -102,6 +102,10 @@ perhaps we should add it to Lambda Soup.
 
 Lambda Soup is distributed under the BSD license. See [LICENSE][license].
 
+Lambda Soup includes a modified version of [Ocamlnet][ocamlnet]'s Nethtml HTML
+parser. The license for this parser is also found in the [LICENSE][license]
+file.
+
 [docs]:         http://aantron.github.io/lambda-soup
 [postprocess]:  https://github.com/aantron/lambda-soup/blob/master/docs/postprocess.ml
 [tests]:        https://github.com/aantron/lambda-soup/blob/master/test/test.ml
@@ -114,3 +118,4 @@ Lambda Soup is distributed under the BSD license. See [LICENSE][license].
 [extracss]:     http://aantron.github.io/lambda-soup#VALselect
 [traversals]:   http://aantron.github.io/lambda-soup#2_Elementarytraversals
 [combinators]:  http://aantron.github.io/lambda-soup#2_Combinators
+[ocamlnet]:     http://projects.camlcity.org/projects/ocamlnet.html

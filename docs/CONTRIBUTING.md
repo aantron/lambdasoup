@@ -24,13 +24,14 @@ improvement. Here are a few examples:
   of performance improvements to be made.
 - Lambda Soup could extend CSS with parent, ancestor, previous sibling, and
   adjacent previous sibling combinators. These are the natural inverses of the
-  standard combinators.
+  standard combinators. There are also some potentially useful extensions in
+  jQuery, such as `:has`, that Lambda Soup could borrow.
+- Lambda Soup could also support XPath for selection. XPath does seem to be much
+  less familiar to people, on average, however.
 - Lambda Soup relies on [Ocamlnet's parser][nethtml] for HTML. This parser, like
   every other, has quirks, such as the way it handles attributes without a
   value and the fact that it does not resolve entities. Lambda Soup is also
-  completely reliant on it for dealing properly with character encodings. We may
-  need to work around some of these behaviors and/or parametrize Lambda Soup
-  over parsers.
+  completely reliant on it for dealing properly with character encodings.
 
 Of course, this is aside from any bugs that may be found :)
 
@@ -39,14 +40,20 @@ Of course, this is aside from any bugs that may be found :)
 Clone the repository locally. The library source is organized as follows:
 
 - `src/`: main source, i.e. `src/soup.mli` and `src/soup.ml`.
-- `test/`: test cases in `test.ml`.
+- `test/`: unit tests in `test.ml`, a performance test, and a reverse dependency
+  ("integration") test.
 - `docs/`: files related to the `ocamldoc` documentation, such as extra HTML and
   the postprocessing script.
 
-To run tests, run `make test`. This requires the `ounit` package. To generate
-docs, run `make docs`. To install the library from your repo clone, run
-`make install`. This uses OPAM to pin the repository and install a `lambdasoup`
-package. To undo this, run `make uninstall`.
+Tu run tests, run `make all-tests`. This requires the `ounit` package. This
+takes some time, because it reinstalls Lambda Soup. If you want to run only the
+unit and performance tests, run `make test`.
+
+To generate docs, run `make docs`.
+
+To install the library from your repo clone, run `make install`. This uses OPAM
+to pin the repository and install a `lambdasoup` package. To undo this, run
+`make uninstall`.
 
 Make a branch off master, make your changes, rebase over master (if you have to)
 when done, and submit a pull request :)

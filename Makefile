@@ -25,6 +25,9 @@ reverse-dependency-test :
 		$(OCAMLBUILD) -clean && \
 		$(OCAMLBUILD) $(CFLAGS) dependency.native --
 
+.PHONY : all-tests
+all-tests : uninstall install test reverse-dependency-test
+
 HTML := docs/html
 
 .PHONY : docs

@@ -182,6 +182,10 @@ body > pre:first-of-type {
     margin-top: 1.5em;
 }
 
+.end-of-section-text {
+    margin-bottom: 3em;
+}
+
 /* Links. */
 
 a {
