@@ -1,5 +1,9 @@
 open Soup
 
+(* For pre-4.01 distributions of OCaml. This definition is not necessary with
+   current versions. *)
+let (|>) x f = f x
+
 let read_file =
   let directory = "docs" in
   fun filename -> filename |> Filename.concat directory |> read_file

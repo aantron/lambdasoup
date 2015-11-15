@@ -1,12 +1,19 @@
+env:
+  - PPA=avsm/ocaml312+opam12 DOCS=no
+  - PPA=avsm/ocaml40+opam12 DOCS=no
+  - PPA=avsm/ocaml41+opam12
+  - PPA=avsm/ocaml42+opam12
+
 before_script:
-  - sudo add-apt-repository -y ppa:avsm/ppa
+  - sudo add-apt-repository -y ppa:$PPA
   - sudo apt-get update
   - sudo apt-get install ocaml-nox opam
+  - ocaml -version
   - opam init -y
   - eval `opam config env`
-  - opam install -y ounit
 
 script:
   - make install
+  - opam install -y ounit
   - make test
-  - make docs
+  - "[ $DOCS == no ] || make docs"
