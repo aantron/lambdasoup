@@ -7,7 +7,7 @@ env:
 before_script:
   - sudo add-apt-repository -y ppa:$PPA
   - sudo apt-get update
-  - sudo apt-get install ocaml-nox opam
+  - sudo apt-get install ocaml-nox opam python-bs4
   - ocaml -version
   - opam init -y
   - eval `opam config env`
