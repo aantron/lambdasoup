@@ -1,5 +1,6 @@
 <*>: -traverse
 <src> or <test> or <docs>: include, traverse
+<test/dependency>: -include, -traverse
 
 <test/test.*>: package(oUnit)
 <test/performance.*>: package(unix)

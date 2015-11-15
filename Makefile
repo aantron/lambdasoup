@@ -1,6 +1,7 @@
 BUILD_DIR := build
 CLFAGS := -clfags -safe-string,-w,+A-48,-short-paths
 OCAMLBUILD := ocamlbuild -use-ocamlfind -build-dir $(BUILD_DIR)
+DEP_TEST_DIR := test/dependency
 
 .PHONY : build
 build :
@@ -17,6 +18,12 @@ test :
 		|| (echo $(BS4_MISSING); exit 1)) \
 		&& (echo python test/performance.py; python test/performance.py)) \
 		|| exit 0
+
+.PHONY : reverse-dependency-test
+reverse-dependency-test :
+	cd $(DEP_TEST_DIR) && \
+		$(OCAMLBUILD) -clean && \
+		$(OCAMLBUILD) $(CFLAGS) dependency.native --
 
 HTML := docs/html
 
@@ -73,4 +80,5 @@ uninstall :
 .PHONY : clean
 clean :
 	$(OCAMLBUILD) -clean
+	cd $(DEP_TEST_DIR) && $(OCAMLBUILD) -clean
 	rm -rf docs/html opam

@@ -14,6 +14,7 @@ before_script:
 
 script:
   - make install
+  - make reverse-dependency-test
   - opam install -y ounit
   - make test
   - "[ $DOCS == no ] || make docs"

@@ -52,7 +52,6 @@ your-package-manager install ocaml opam
 opam init
 eval `opam config env`
 make install        # In your Lambda Soup clone, for now.
-                    # It will take a bit of time to compile Ocamlnet.
 ```
 
 and make sure your `~/.ocamlinit` file looks something like this:
