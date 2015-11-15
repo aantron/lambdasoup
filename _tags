@@ -1,4 +1,5 @@
 <*>: -traverse
 <src> or <test> or <docs>: include, traverse
-<**/*.ml*> or <**/*.native> or <**/*.byte>: package(netstring)
-<test/*.ml*> or <test/*.native>: package(oUnit)
+
+<test/test.*>: package(oUnit)
+<test/performance.*>: package(unix)

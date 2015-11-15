@@ -102,7 +102,7 @@ let _create_document roots =
 let create_soup () = _create_document []
 
 let parse text =
-  let open Nethtml in
+  let open Soup_ocamlnet_nethtml in
 
   let rec convert = function
     | Data s -> create_text s

@@ -37,12 +37,10 @@ the installation from local clone, you can do
 
     make uninstall
 
-Lambda Soup relies on Ocamlnet's HTML parser. OPAM will grab that for you.
-Lambda Soup has no other dependencies.
-
 ## Documentation
 
-Lambda Soup consists of one module, whose signature is documented [here][docs].
+Lambda Soup's interface consists of one module, whose signature is documented
+[here][docs].
 
 ## Starting from scratch
 

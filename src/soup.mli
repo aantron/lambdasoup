@@ -40,7 +40,7 @@ val parse : string -> soup node
     top-level HTML nodes found. The parser uses Ocamlnet's module
     {{: http://ocamlnet.sourceforge.net/refman/Nethtml.html} Nethtml}
     internally, and so is subject to its quirks, such as unresolved entity
-    references. It is also at the mercy of Ocamlnet's handling of character
+    references. It is also at the mercy of Nethtml's handling of character
     encodings. This may change in the future. *)
 
 val select : string -> (_ node) -> element nodes
