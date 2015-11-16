@@ -26,32 +26,25 @@ The library is [tested][tests] thoroughly.
 
 ## Installing
 
-Until the library is added to OPAM, the easiest way to install Lambda Soup is to
-clone this repository locally, then, in your local Lambda Soup repository root,
-run
+Simply
 
-    make install
+    opam install lambdasoup
 
-This requires OPAM and uses it to pin the `lambdasoup` package. Later, to remove
-the installation from local clone, you can do
+If you want to install a development version, see instructions in
+[CONTRIBUTING][contributing-install].
 
-    make uninstall
-
-## Documentation
-
-Lambda Soup's interface consists of one module, whose signature is documented
-[here][docs].
+[contributing-install]: https://github.com/aantron/lambda-soup/blob/master/docs/CONTRIBUTING.md#developing
 
 ## Starting from scratch
 
-To (easily) use Lambda Soup interactively as in the example in this README, you
-need to do the following if you are starting from scratch:
+To use Lambda Soup interactively as in the GIF at the top of this README, you
+need to do the following, if you are starting from scratch:
 
 ```sh
 your-package-manager install ocaml opam
 opam init
-eval `opam config env`
-make install        # In your Lambda Soup clone, for now.
+eval `opam config env`          # Or restart your shell
+opam install lambdasoup
 ```
 
 and make sure your `~/.ocamlinit` file looks something like this:
@@ -65,7 +58,12 @@ let () =
 #use "topfind";;
 ```
 
-Then, run `ocaml` to start the top-level, and scrape away!
+Then, run `ocaml -short-paths` to start the top-level, and scrape away!
+
+## Documentation
+
+Lambda Soup's interface consists of one module, whose signature is documented
+[here][docs].
 
 ## Performance
 
