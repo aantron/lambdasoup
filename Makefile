@@ -1,5 +1,18 @@
+OCAML_VERSION := \
+	$(shell ocamlc -version | grep -E -o '^[0-9]+\.[0-9]+' | sed 's/\.//')
+
+ifeq ($(shell test $(OCAML_VERSION) -ge 402 && echo true),true)
+SAFE_STRING := ,-safe-string
+endif
+
+ifeq ($(shell test $(OCAML_VERSION) -ge 400 && echo true),true)
+BIN_ANNOT := ,-bin-annot
+CMTI := build/src/soup.cmti
+endif
+
+CFLAGS := -cflags -w,+A-9-48$(BIN_ANNOT)$(SAFE_STRING)
+
 BUILD_DIR := build
-CLFAGS := -clfags -safe-string,-w,+A-48,-short-paths
 OCAMLBUILD := ocamlbuild -use-ocamlfind -build-dir $(BUILD_DIR)
 DEP_TEST_DIR := test/dependency
 
@@ -60,7 +73,7 @@ publish-docs : docs
 
 INSTALL := \
 	build/src/lambdasoup.cma build/src/lambdasoup.cmxa build/src/lambdasoup.a \
-	build/src/soup.cmi build/src/soup.mli
+	build/src/soup.cmi $(CMTI) build/src/soup.mli
 PACKAGE := lambdasoup
 
 .PHONY : ocamlfind-install
