@@ -363,6 +363,13 @@ let tags name' node =
   |> elements
   |> filter (fun element -> name element = name')
 
+let without_tags name' node =
+  let name' = String.lowercase name' in
+  node
+  |> descendants
+  |> elements
+  |> filter (fun element -> name element <> name')
+
 let tag name node = tags name node |> first
 
 let _normalize_children trim children =

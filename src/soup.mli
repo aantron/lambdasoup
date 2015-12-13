@@ -350,6 +350,23 @@ some_root_node $$ "a"
     Note that tag names are case-insensitive.
  *)
 
+val without_tags : string -> (_ node) -> element nodes
+(** Evaluates to all descendant elements of the given node that have the given
+    tag name. For example, the following is a sequence of all [a] elements under
+    [some_root_node]:
+
+{[
+some_root_node |> tags "a"
+]}
+
+    It is equivalent to
+
+{[
+some_root_node
+|> descendants |> elements |> filter (fun e -> name e <> "a")
+]} *)
+
+
 val tag : string -> (_ node) -> element node option
 (** Like [tags], but evaluates to only the first element, if there is one. So,
     the following selects the first [a] element under [some_root_node]:
