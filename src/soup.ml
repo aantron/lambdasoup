@@ -908,6 +908,44 @@ let _is_void_element_name = function
   | "wbr" -> true
   | _ -> false
 
+let pretty_print_raw root =
+  let buffer = Buffer.create 65536 in
+  let indent level = String.make (level * 2) ' ' in
+
+  let rec traverse level = function
+    | {values = `Text s} ->
+      Printf.bprintf buffer "%s%s\n" (indent level) (String.trim s)
+    | {values = `Document {roots}; _} ->
+      List.map _forget_type roots |> List.iter (traverse level)
+    | {values = `Element {name; attributes; children}; _} ->
+      Printf.bprintf buffer "%s<%s" (indent level) name;
+      attributes |> List.iter (fun (name, value) ->
+        Printf.bprintf buffer " %s=\"%s\"" name value);
+      Printf.bprintf buffer ">\n";
+      children |> List.map _forget_type |> List.iter (traverse (level + 1));
+      Printf.bprintf buffer "%s</%s>\n" (indent level) name
+  in
+  traverse 0 root;
+  Buffer.contents buffer
+
+let to_string_raw root =
+  let buffer = Buffer.create 65536 in
+  let rec traverse = function
+    | {values = `Text s} -> Buffer.add_string buffer s
+    | {values = `Document {roots}; _} ->
+      List.map _forget_type roots |> List.iter traverse
+    | {values = `Element {name; attributes; children}; _} ->
+      Printf.bprintf buffer "<%s" name;
+      attributes |> List.iter (fun (name, value) ->
+        Printf.bprintf buffer " %s=\"%s\"" name value);
+      Printf.bprintf buffer ">";
+      children |> List.map _forget_type |> List.iter traverse;
+      Printf.bprintf buffer "</%s>" name
+  in
+  traverse root;
+  Buffer.contents buffer
+
+
 let pretty_print root =
   let buffer = Buffer.create 65536 in
   let indent level = String.make (level * 2) ' ' in

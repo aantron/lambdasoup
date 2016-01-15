@@ -413,6 +413,21 @@ val is_root : (_ node) -> bool
 
 (** {2 Printing} *)
 
+val pretty_print_raw : (_ node) -> string
+(** Converts the node tree rooted at the given node to a string formatted for
+    easy reading. Note that this can change the whitespace structure of the
+    HTML, so pretty-printed HTML may display differently in a browser than the
+    original parsed document. Pretty-printing is meant for inspection,
+    debugging, content diffs, etc., not browser viewing. The raw prefix means
+    that we would avoid clever rewriting rewriting, such as those transforming a
+    <meta/> in <meta>*)
+
+val to_string_raw : (_ node) -> string
+(** Converts the node tree rooted at the given node to a string, preserving
+    whitespace nodes and not minding human readability considerations. The raw prefix means
+    that we would avoid clever rewriting, such as those transforming a
+    <meta/> in <meta>*)
+
 val pretty_print : (_ node) -> string
 (** Converts the node tree rooted at the given node to a string formatted for
     easy reading. Note that this can change the whitespace structure of the

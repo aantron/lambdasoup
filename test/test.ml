@@ -816,7 +816,19 @@ let suites = [
       assert_equal document (document |> parse |> to_string);
       assert_bool "pretty_print"
         (equal_modulo_whitespace
-          (parse document) (parse document |> pretty_print |> parse)))
+          (parse document) (parse document |> pretty_print |> parse)));
+    ("pretty_print_raw" >:: fun _ ->
+          let document =
+            "<html><head><meta/></head><body class=\"testing\">\n<p>foo</p>\n<p>bar</p>\n</body></html>"
+          in
+          let expected_document =
+            "<html><head><meta></meta></head><body class=\"testing\">\n<p>foo</p>\n<p>bar</p>\n</body></html>"
+          in
+
+          assert_equal expected_document (document |> parse |> to_string_raw);
+          assert_bool "pretty_print_raw"
+            (equal_modulo_whitespace
+              (parse document) (parse document |> pretty_print_raw |> parse)))
   ]
 ]
 
