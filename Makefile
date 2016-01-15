@@ -7,7 +7,6 @@ endif
 
 ifeq ($(shell test $(OCAML_VERSION) -ge 400 && echo true),true)
 BIN_ANNOT := ,-bin-annot
-CMTI := build/src/soup.cmti
 endif
 
 CFLAGS := -cflags -w,+A-9-48$(BIN_ANNOT)$(SAFE_STRING)
@@ -73,12 +72,12 @@ publish-docs : docs
 
 INSTALL := \
 	build/src/lambdasoup.cma build/src/lambdasoup.cmxa build/src/lambdasoup.a \
-	build/src/soup.cmi $(CMTI) build/src/soup.mli
+	build/src/soup.cmi build/src/soup.mli build/src/soup.cmti build/src/soup.cmt
 PACKAGE := lambdasoup
 
 .PHONY : ocamlfind-install
 ocamlfind-install :
-	ocamlfind install $(PACKAGE) src/META $(INSTALL)
+	ocamlfind install $(PACKAGE) -optional src/META $(INSTALL)
 
 .PHONY : ocamlfind-uninstall
 ocamlfind-uninstall :
