@@ -1,4 +1,4 @@
-version = "0.5"
+version = "0.5.1"
 description = "Easy functional HTML scraping and manipulation"
 archive(byte) = "lambdasoup.cma"
 archive(native) = "lambdasoup.cmxa"

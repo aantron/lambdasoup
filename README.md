@@ -7,9 +7,9 @@ aimed at being easy to use.
 
 [sample]: https://raw.githubusercontent.com/aantron/lambda-soup/master/docs/sample.gif
 
-[![version 0.5][version]][releases] [![BSD license][license-img]][license]
+[![version 0.5.1][version]][releases] [![BSD license][license-img]][license]
 
-[version]:     https://img.shields.io/badge/version-0.5-blue.svg
+[version]:     https://img.shields.io/badge/version-0.5.1-blue.svg
 [license-img]: https://img.shields.io/badge/license-BSD-blue.svg
 
 For some more examples, see the Lambda Soup [postprocessor][postprocess] that
