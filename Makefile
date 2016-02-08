@@ -90,7 +90,7 @@ install :
 
 .PHONY : uninstall
 uninstall :
-	opam pin remove lambdasoup -y
+	opam pin remove $(PACKAGE) -y
 
 .PHONY : clean
 clean :
