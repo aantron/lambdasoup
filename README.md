@@ -1,6 +1,6 @@
-# Lambda Soup [![version 0.5.1][version]][releases] [![Documentation][doc-img]][docs] [![BSD license][license-img]][license] [![Travis status][travis-img]][travis]
+# Lambda Soup [![version 0.6][version]][releases] [![Documentation][doc-img]][docs] [![BSD license][license-img]][license] [![Travis status][travis-img]][travis]
 
-[version]:     https://img.shields.io/badge/version-0.5.1-blue.svg
+[version]:     https://img.shields.io/badge/version-0.6-blue.svg
 [doc-img]:     https://img.shields.io/badge/docs-online-blue.svg
 [license-img]: https://img.shields.io/badge/license-BSD-blue.svg
 [travis]:      https://travis-ci.org/aantron/lambda-soup/branches
