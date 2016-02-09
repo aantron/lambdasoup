@@ -101,21 +101,26 @@ let _create_document roots =
 
 let create_soup () = _create_document []
 
-let parse text =
-  let open Soup_ocamlnet_nethtml in
-
-  let rec convert = function
-    | Data s -> create_text s
-    | Element (name, attributes, children) ->
-      children
-      |> List.map convert
-      |> _create_element name attributes
+let from_signals signals =
+  let rec parse_top_level acc =
+    let maybe_tree =
+      signals |> Markup.tree
+        ~text:(fun ss -> create_text (String.concat "" ss))
+        ~element:(fun name attributes children ->
+          let attributes =
+            attributes |> List.map (fun ((_, n), v) -> n, v) in
+          _create_element (snd name) attributes children)
+    in
+    match maybe_tree with
+    | None -> List.rev acc
+    | Some tree -> parse_top_level (tree::acc)
   in
 
-  Lexing.from_string text
-  |> parse_document ~dtd:relaxed_html40_dtd
-  |> List.map convert
+  parse_top_level []
   |> _create_document
+
+let parse text =
+  text |> Markup.string |> Markup.parse_html |> Markup.signals |> from_signals
 
 let _is_document node =
   match node.values with
@@ -908,46 +913,33 @@ let _is_void_element_name = function
   | "wbr" -> true
   | _ -> false
 
+let signals root =
+  let root = _forget_type root in
+
+  let rec traverse acc = function
+    | {values = `Element {name; attributes; children}; _} ->
+      let start_signal =
+        `Start_element
+          (("http://www.w3.org/1999/xhtml", name),
+           List.map (fun (n, v) -> ("", n), v) attributes)
+      in
+      `End_element::(traverse_list (start_signal::acc) children)
+
+    | {values = `Document {roots}; _} -> traverse_list acc roots
+    | {values = `Text s; _} -> (`Text [s])::acc
+
+  and traverse_list acc l = List.fold_left traverse acc l
+
+  in
+
+  traverse [] root
+  |> List.rev
+  |> Markup.of_list
+
 let pretty_print root =
-  let buffer = Buffer.create 65536 in
-  let indent level = String.make (level * 2) ' ' in
+  signals root |> Markup.pretty_print |> Markup.write_html |> Markup.to_string
 
-  let rec traverse level = function
-    | {values = `Text s} ->
-      Printf.bprintf buffer "%s%s\n" (indent level) (String.trim s)
-    | {values = `Document {roots}; _} ->
-      List.map _forget_type roots |> List.iter (traverse level)
-    | {values = `Element {name; attributes; children}; _} ->
-      Printf.bprintf buffer "%s<%s" (indent level) name;
-      attributes |> List.iter (fun (name, value) ->
-        Printf.bprintf buffer " %s=\"%s\"" name value);
-      Printf.bprintf buffer ">\n";
-      if (_is_void_element_name name && children = []) |> not then begin
-        children |> List.map _forget_type |> List.iter (traverse (level + 1));
-        Printf.bprintf buffer "%s</%s>\n" (indent level) name
-      end
-  in
-  traverse 0 root;
-  Buffer.contents buffer
-
-let to_string root =
-  let buffer = Buffer.create 65536 in
-  let rec traverse = function
-    | {values = `Text s} -> Buffer.add_string buffer s
-    | {values = `Document {roots}; _} ->
-      List.map _forget_type roots |> List.iter traverse
-    | {values = `Element {name; attributes; children}; _} ->
-      Printf.bprintf buffer "<%s" name;
-      attributes |> List.iter (fun (name, value) ->
-        Printf.bprintf buffer " %s=\"%s\"" name value);
-      Printf.bprintf buffer ">";
-      if (_is_void_element_name name && children = []) |> not then begin
-        children |> List.map _forget_type |> List.iter traverse;
-        Printf.bprintf buffer "</%s>" name
-      end
-  in
-  traverse root;
-  Buffer.contents buffer
+let to_string root = signals root |> Markup.write_html |> Markup.to_string
 
 let rec _equal_general normalize_children n n' =
   let equal_text s s' = s = s' in
@@ -1217,35 +1209,10 @@ struct
     previous_element n |> _require_internal "Soup.R.previous_element: None"
 end
 
-let read_channel channel =
-  let buffer = Buffer.create 65536 in
+let read_channel channel = Markup.channel channel |> Markup.to_string
 
-  let rec repeat () = Buffer.add_channel buffer channel 1; repeat () in
-
-  try repeat ()
-  with End_of_file -> Buffer.contents buffer
-
-let read_file path =
-  let channel = open_in path in
-
-  try
-    let text = read_channel channel in
-    close_in channel;
-    text
-
-  with exn ->
-    close_in_noerr channel;
-    raise exn
+let read_file path = Markup.file path |> fst |> Markup.to_string
 
 let write_channel = output_string
 
-let write_file path data =
-  let channel = open_out path in
-
-  try
-    write_channel channel data;
-    close_out channel
-
-  with exn ->
-    close_out_noerr channel;
-    raise exn
+let write_file path data = Markup.string data |> Markup.to_file path

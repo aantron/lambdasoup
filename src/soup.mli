@@ -37,11 +37,12 @@ type 'a nodes
 
 val parse : string -> soup node
 (** Parses the given HTML text and evaluates to a document node containing the
-    top-level HTML nodes found. The parser uses Ocamlnet's module
-    {{: http://ocamlnet.sourceforge.net/refman/Nethtml.html} Nethtml}
-    internally, and so is subject to its quirks, such as unresolved entity
-    references. It is also at the mercy of Nethtml's handling of character
-    encodings. This may change in the future. *)
+    top-level HTML nodes found. Entity references are resolved, and the
+    character encoding is detected automatically.
+
+    If you need to parse XML, or control over parsing, or want to feed Lambda
+    Soup something other than bytes, see
+    {{: #2_Parsingsignals} Parsing signals}. *)
 
 val select : string -> (_ node) -> element nodes
 (** [select selector node] is all the descendants of [node] matching CSS
@@ -153,12 +154,7 @@ val name : element node -> string
 val attribute : string -> element node -> string option
 (** [attribute attr element] evaluates to [Some v] if [element] has attribute
     [attr] and it is set to value [v], and [None] if [element] does not have
-    [attr]. In simpler words, [attribute] gets [attr] from [element].
-
-    Note that since Lambda Soup currently uses Ocamlnet's HTML parser,
-    attributes without a value in the original HTML markup have their own name
-    as value. For example, [<div contenteditable></div>] is interpreted by
-    Ocamlnet as if it was [<div contenteditable="contenteditable"></div>]. *)
+    [attr]. In simpler words, [attribute] gets [attr] from [element]. *)
 
 val classes : element node -> string list
 (** Evaluates to the class list of the given element. *)
@@ -413,6 +409,11 @@ val is_root : (_ node) -> bool
 
 (** {2 Printing} *)
 
+val to_string : (_ node) -> string
+(** Converts the node tree rooted at the given node to an HTML5 string,
+    preserving whitespace nodes and not minding human readability
+    considerations. *)
+
 val pretty_print : (_ node) -> string
 (** Converts the node tree rooted at the given node to a string formatted for
     easy reading. Note that this can change the whitespace structure of the
@@ -420,9 +421,41 @@ val pretty_print : (_ node) -> string
     original parsed document. Pretty-printing is meant for inspection,
     debugging, content diffs, etc., not browser viewing. *)
 
-val to_string : (_ node) -> string
-(** Converts the node tree rooted at the given node to a string, preserving
-    whitespace nodes and not minding human readability considerations. *)
+
+
+(** {2 Parsing signals}
+
+    Lambda Soup uses {{: https://github.com/aantron/markup.ml} Markup.ml}
+    internally to parse and write markup. If you wish to:
+
+    - avoid intermediate strings when reading or writing,
+    - control how parsing is done, or
+    - run the input or output of Lambda Soup through a filter without having to
+      re-parse it,
+
+    then you should use the functions below instead of [parse] and [to_string].
+
+    See the {{: http://aantron.github.io/markup.ml/} Markup.ml documentation}
+    for the types involved. The
+    {{: https://github.com/aantron/markup.ml#overview-and-basic-usage} overview}
+    may be a good place to start.
+ *)
+
+val signals : (_ node) -> (Markup.signal, Markup.sync) Markup.stream
+(** Converts the node tree rooted at the given node to a stream of Markup.ml
+    signals. This underlies [to_string] and [pretty_print].
+
+    You can use this function together with [Markup.write_xml] to output XML
+    instead of HTML. *)
+
+val from_signals : (Markup.signal, Markup.sync) Markup.stream -> soup node
+(** Converts a stream of Markup.ml signals to a node tree. This underlies
+    [parse].
+
+    You can use this function together with [Markup.parse_xml] to load XML into
+    Lambda Soup.
+
+    At the moment, namespaces are ignored. *)
 
 
 

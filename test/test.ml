@@ -263,15 +263,17 @@ let suites = [
       expected_count "li" 1;
       expected_count "p" 0;
 
-      assert_equal (soup |> children |> count) 2;
-      assert_equal (soup $ "li" |> children |> R.first |> children |> count) 0;
+      assert_equal ~msg:"soup nodes" (soup |> children |> count) 1;
+      assert_equal ~msg:"li node nodes"
+        (soup $ "li" |> children |> R.first |> children |> count) 0;
 
-      assert_equal (soup |> children |> R.first |> R.element |> name) "html";
+      assert_equal ~msg:"first element"
+        (soup |> children |> R.first |> R.element |> name) "html";
 
-      assert_equal
+      assert_equal ~msg:"nth: ul"
         (soup $ "body" |> children |> R.nth 2 |> R.element |> name) "ul";
 
-      assert_equal
+      assert_equal ~msg:"nth: ol"
         (soup $ "body" |> children |> R.nth 4 |> R.element |> name) "ol");
 
     ("elements-filter" >:: fun _ ->
@@ -308,9 +310,9 @@ let suites = [
       expected_count "body" 24;
       expected_count "html" 27;
 
-      assert_equal (soup |> descendants |> count) 29;
+      assert_equal ~msg:"soup descendants" (soup |> descendants |> count) 28;
 
-      assert_equal
+      assert_equal ~msg:"body descendant names"
         (soup $ "body" |> descendants |> elements |> to_list |> List.map name)
         ["ul"; "li"; "li"; "li"; "ol"; "li"; "li"; "p"]);
 
@@ -342,7 +344,7 @@ let suites = [
         assert_equal ~msg:selector (soup $ selector |> next_siblings |> count) n
       in
 
-      expected_count "html" 1;
+      expected_count "html" 0;
       expected_count "ul" 5;
 
       assert_equal
@@ -383,24 +385,26 @@ let suites = [
       assert_equal
         (page "list" |> parse |> descendants |> elements
          |> to_list |> List.map name)
-        ["html"; "body"; "ul"; "li"; "li"; "li"; "ol"; "li"; "li"; "p"]);
+        ["html"; "head"; "body"; "ul"; "li"; "li"; "li"; "ol"; "li"; "li";
+         "p"]);
 
     ("fold" >:: fun _ ->
       let soup = page "list" |> parse in
 
-      assert_equal (soup |> descendants |> fold (fun v _ -> v + 1) 0) 29;
+      assert_equal (soup |> descendants |> fold (fun v _ -> v + 1) 0) 28;
 
       assert_equal
         (soup |> descendants |> elements
          |> fold (fun l e -> (name e)::l) [] |> List.rev)
-        ["html"; "body"; "ul"; "li"; "li"; "li"; "ol"; "li"; "li"; "p"]);
+        ["html"; "head"; "body"; "ul"; "li"; "li"; "li"; "ol"; "li"; "li";
+         "p"]);
 
     ("filter" >:: fun _ ->
       assert_equal
         (page "list" |> parse |> descendants |> elements
          |> filter (fun e -> e |> children |> elements |> count = 0)
          |> to_list |> List.map name)
-        ["li"; "li"; "li"; "li"; "li"; "p"]);
+        ["head"; "li"; "li"; "li"; "li"; "li"; "p"]);
 
     ("map" >:: fun _ ->
       assert_equal
@@ -413,7 +417,8 @@ let suites = [
       assert_equal
         (page "list" |> parse |> descendants
          |> filter_map element |> to_list |> List.map name)
-        ["html"; "body"; "ul"; "li"; "li"; "li"; "ol"; "li"; "li"; "p"]);
+        ["html"; "head"; "body"; "ul"; "li"; "li"; "li"; "ol"; "li"; "li";
+         "p"]);
 
     ("flatten" >:: fun _ ->
       assert_equal
@@ -430,7 +435,8 @@ let suites = [
 
       assert_equal
         (List.rev !tags)
-        ["html"; "body"; "ul"; "li"; "li"; "li"; "ol"; "li"; "li"; "p"]);
+        ["html"; "head"; "body"; "ul"; "li"; "li"; "li"; "ol"; "li"; "li";
+         "p"]);
 
     ("projection" >:: fun _ ->
       let nodes = page "list" |> parse $ "body" |> children |> elements in
@@ -464,7 +470,7 @@ let suites = [
       test index_of "p" 6;
 
       test index_of_element "html" 1;
-      test index_of_element "body" 1;
+      test index_of_element "body" 2;
       test index_of_element "ul" 1;
       test index_of_element "ol" 2;
       test index_of_element "p" 3);
@@ -810,13 +816,20 @@ let suites = [
 
     ("pretty_print" >:: fun _ ->
       let document =
-        "<html><body class=\"testing\">\n<p>foo</p>\n<p>bar</p>\n</body></html>"
+        ("<html><head></head>" ^
+         "<body class=\"testing\">\n<p>foo</p>\n<p>bar</p>\n</body></html>")
       in
 
       assert_equal document (document |> parse |> to_string);
       assert_bool "pretty_print"
         (equal_modulo_whitespace
-          (parse document) (parse document |> pretty_print |> parse)))
+          (parse document) (parse document |> pretty_print |> parse)));
+
+    ("entity" >:: fun _ ->
+      assert_equal ("<p>&amp;</p>" |> parse |> R.leaf_text) "&");
+
+    ("encoding" >:: fun _ ->
+      assert_equal ("\xfe\xff\x00f\x00o\x00o" |> parse |> R.leaf_text) "foo")
   ]
 ]
 

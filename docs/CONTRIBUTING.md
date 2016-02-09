@@ -28,16 +28,14 @@ improvement. Here are a few examples:
   jQuery, such as `:has`, that Lambda Soup could borrow.
 - Lambda Soup could also support XPath for selection. XPath does seem to be much
   less familiar to people, on average, however.
-- Lambda Soup relies on [Ocamlnet's parser][nethtml] for HTML. This parser, like
-  every other, has quirks, such as the way it handles attributes without a
-  value and the fact that it does not resolve entities. Lambda Soup is also
-  completely reliant on it for dealing properly with character encodings.
 
 Of course, this is aside from any bugs that may be found :)
 
 ## Developing
 
-Clone the repository locally. The library source is organized as follows:
+Clone the repository locally, or run `opam source --dev-repo --pin lambdasoup`.
+
+The library source is organized as follows:
 
 - `src/`: main source, i.e. `src/soup.mli` and `src/soup.ml`.
 - `test/`: unit tests in `test.ml`, a performance test, and a reverse dependency

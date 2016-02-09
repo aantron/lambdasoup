@@ -21,7 +21,7 @@ open Soup
 let () =
   let html = read_file "test/pages/google" in
 
-  measure 1000 "parse" (fun () -> parse html |> ignore);
+  measure 100 "parse" (fun () -> parse html |> ignore);
   let soup = parse html in
 
   let traverse = fun () -> soup |> descendants |> count in

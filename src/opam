@@ -15,4 +15,5 @@ remove: ["ocamlfind" "remove" "lambdasoup"]
 depends: [
   "ocamlfind" {build}
   "ocamlbuild" {build}
+  "markup" {>= "0.7"}
 ]
