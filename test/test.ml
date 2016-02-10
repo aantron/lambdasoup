@@ -873,7 +873,10 @@ let suites = [
       assert_equal ("<p>&amp;</p>" |> parse |> R.leaf_text) "&");
 
     ("encoding" >:: fun _ ->
-      assert_equal ("\xfe\xff\x00f\x00o\x00o" |> parse |> R.leaf_text) "foo")
+      assert_equal ("\xfe\xff\x00f\x00o\x00o" |> parse |> R.leaf_text) "foo");
+
+    ("multiple-roots" >:: fun _ ->
+      assert_equal ("<p><p>" |> parse |> to_string) "<p></p><p></p>");
   ]
 ]
 
