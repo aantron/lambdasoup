@@ -102,21 +102,14 @@ let _create_document roots =
 let create_soup () = _create_document []
 
 let from_signals signals =
-  let rec parse_top_level acc =
-    let maybe_tree =
-      signals |> Markup.tree
-        ~text:(fun ss -> create_text (String.concat "" ss))
-        ~element:(fun name attributes children ->
-          let attributes =
-            attributes |> List.map (fun ((_, n), v) -> n, v) in
-          _create_element (snd name) attributes children)
-    in
-    match maybe_tree with
-    | None -> List.rev acc
-    | Some tree -> parse_top_level (tree::acc)
-  in
-
-  parse_top_level []
+  signals
+  |> Markup.trees
+    ~text:(fun ss -> create_text (String.concat "" ss))
+    ~element:(fun name attributes children ->
+      let attributes =
+        attributes |> List.map (fun ((_, n), v) -> n, v) in
+      _create_element (snd name) attributes children)
+  |> Markup.to_list
   |> _create_document
 
 let parse text =
