@@ -263,7 +263,7 @@ let suites = [
       expected_count "li" 1;
       expected_count "p" 0;
 
-      assert_equal ~msg:"soup nodes" (soup |> children |> count) 1;
+      assert_equal ~msg:"soup nodes" (soup |> children |> count) 2;
       assert_equal ~msg:"li node nodes"
         (soup $ "li" |> children |> R.first |> children |> count) 0;
 
@@ -310,7 +310,7 @@ let suites = [
       expected_count "body" 24;
       expected_count "html" 27;
 
-      assert_equal ~msg:"soup descendants" (soup |> descendants |> count) 28;
+      assert_equal ~msg:"soup descendants" (soup |> descendants |> count) 29;
 
       assert_equal ~msg:"body descendant names"
         (soup $ "body" |> descendants |> elements |> to_list |> List.map name)
@@ -344,7 +344,7 @@ let suites = [
         assert_equal ~msg:selector (soup $ selector |> next_siblings |> count) n
       in
 
-      expected_count "html" 0;
+      expected_count "html" 1;
       expected_count "ul" 5;
 
       assert_equal
@@ -391,7 +391,7 @@ let suites = [
     ("fold" >:: fun _ ->
       let soup = page "list" |> parse in
 
-      assert_equal (soup |> descendants |> fold (fun v _ -> v + 1) 0) 28;
+      assert_equal (soup |> descendants |> fold (fun v _ -> v + 1) 0) 29;
 
       assert_equal
         (soup |> descendants |> elements
