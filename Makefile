@@ -72,7 +72,8 @@ publish-docs : docs
 
 INSTALL := \
 	build/src/lambdasoup.cma build/src/lambdasoup.cmxa build/src/lambdasoup.a \
-	build/src/soup.cmi build/src/soup.mli build/src/soup.cmti build/src/soup.cmt
+	build/src/soup.cmi build/src/soup.mli build/src/soup.cmti \
+	build/src/soup.cmt build/src/soup.cmx
 PACKAGE := lambdasoup
 
 .PHONY : ocamlfind-install
