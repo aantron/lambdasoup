@@ -109,6 +109,36 @@ let suites = [
          "+ li#two")
         1);
 
+    ("parse-select-quoted" >:: fun _ ->
+      let soup = page "quoted" |> parse in
+      let test selector expected_count =
+        assert_equal ~msg:selector
+          (soup |> select selector |> count) expected_count
+      in
+
+      test "[id=\"one\"]" 1;
+      test "[id=\"six\"]" 0;
+      test "li[id=\"two\"]" 1;
+      test "li[class~=\"odd\"]" 3;
+      test "li[id^=\"t\"]" 2;
+      test "li[id$=\"e\"]" 3;
+      test "li[id*=\"n\"]" 1;
+      test "[id=\"bracket]\"]" 1;
+      test "[id=\"parenthesis)\"]" 1);
+
+    ("parse-fail-quoted" >:: fun _ ->
+      let soup = page "quoted" |> parse in
+      let test selector =
+        (try
+          soup |> select selector |> ignore; false
+        with
+        | Failure _ -> true
+        | _ -> false) |> assert_bool "expected Failure"
+      in
+
+      test "[id=\"one]";
+      test "[id=\"tw\"o\"]");
+
     ("parse-select-html5" >:: fun _ ->
       let soup = page "html5" |> parse in
       let test selector expected_count =

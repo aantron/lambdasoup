@@ -676,14 +676,32 @@ struct
       Stream.junk stream; Stream.junk stream; Printf.sprintf "%c=" c
     | _ -> failwith "Soup.Selector.parse: expected attribute operator"
 
+  let parse_quoted_string stream =
+    match Stream.peek stream with
+    | Some '"' ->
+      Stream.junk stream;
+      let buffer = Buffer.create 64 in
+      let rec loop () =
+        match Stream.peek stream with
+        | Some c when is_quoted_string_char c ->
+          Buffer.add_char buffer c; Stream.junk stream; loop ()
+        | Some '"' -> Stream.junk stream; Buffer.contents buffer
+        | _ -> failwith "Soup.Selector.parse: unterminated string"
+      in
+      loop ()
+    | _ -> failwith "Soup.Selector.parse: expected a quoted string"
+
   let parse_string stream =
-    let buffer = Buffer.create 32 in
-    let rec loop () =
-      match Stream.peek stream with
-      | Some ')' | Some ']' | None -> Buffer.contents buffer
-      | Some c -> Buffer.add_char buffer c; Stream.junk stream; loop ()
-    in
-    loop ()
+    match Stream.peek stream with
+    | Some '"' -> parse_quoted_string stream
+    | _ ->
+      let buffer = Buffer.create 32 in
+      let rec loop () =
+        match Stream.peek stream with
+        | Some ')' | Some ']' | None -> Buffer.contents buffer
+        | Some c -> Buffer.add_char buffer c; Stream.junk stream; loop ()
+      in
+      loop ()
 
   let consume_whitespace stream =
     let rec loop () =
@@ -788,21 +806,6 @@ struct
       | Some 'n' -> parse_modular_pattern_tail a stream
       | _ -> (0, a))
     | _ -> failwith "Soup.Selector.parse: expected expression"
-
-  let parse_quoted_string stream =
-    match Stream.peek stream with
-    | Some '"' ->
-      Stream.junk stream;
-      let buffer = Buffer.create 64 in
-      let rec loop () =
-        match Stream.peek stream with
-        | Some c when is_quoted_string_char c ->
-          Buffer.add_char buffer c; Stream.junk stream; loop ()
-        | Some '"' -> Stream.junk stream; Buffer.contents buffer
-        | _ -> failwith "Soup.Selector.parse: unterminated string"
-      in
-      loop ()
-    | _ -> failwith "Soup.Selector.parse: expected a quoted string"
 
   let parse_parenthesized_value f stream =
     match Stream.peek stream with
