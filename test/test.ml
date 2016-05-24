@@ -117,14 +117,26 @@ let suites = [
       in
 
       test "[id=\"one\"]" 1;
+      test "[id='one']" 1;
       test "[id=\"six\"]" 0;
+      test "[id='six']" 0;
       test "li[id=\"two\"]" 1;
+      test "li[id='two']" 1;
       test "li[class~=\"odd\"]" 3;
+      test "li[class~='odd']" 3;
       test "li[id^=\"t\"]" 2;
+      test "li[id^='t']" 2;
       test "li[id$=\"e\"]" 3;
+      test "li[id$='e']" 3;
       test "li[id*=\"n\"]" 1;
+      test "li[id*='n']" 1;
       test "[id=\"bracket]\"]" 1;
-      test "[id=\"parenthesis)\"]" 1);
+      test "[id=\"parenthesis)\"]" 1;
+      test "[id='\"dquotes\"']" 1;
+      test "[id=\"dquotes\"]" 0;
+      test "[id=\"\\\"dquotes\\\"\"]" 1;
+      test "[id=\"simple'quote\"]" 1;
+      test "[id='simple\\'quote']" 1);
 
     ("parse-fail-quoted" >:: fun _ ->
       let soup = page "quoted" |> parse in
@@ -136,8 +148,10 @@ let suites = [
         | _ -> false) |> assert_bool "expected Failure"
       in
 
-      test "[id=\"one]";
-      test "[id=\"tw\"o\"]");
+      test "[id=\"unterminated]";
+      test "[id=\"un\"escaped\"]",
+      test "[id='unterminated]";
+      test "[id='un'escaped']");
 
     ("parse-select-html5" >:: fun _ ->
       let soup = page "html5" |> parse in

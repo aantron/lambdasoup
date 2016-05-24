@@ -636,8 +636,6 @@ struct
   let is_whitespace_char c =
     c = ' ' || c = '\t' || c = '\n' || c = '\r'
 
-  let is_quoted_string_char c = c <> '"'
-
   let is_selector_start_char c =
     (is_identifier_char c) || (c == '.') || (c == '#') || (c == '[') ||
     (c == ':')
@@ -678,22 +676,31 @@ struct
 
   let parse_quoted_string stream =
     match Stream.peek stream with
-    | Some '"' ->
+    | Some ('"' as delim) | Some ('\'' as delim) ->
       Stream.junk stream;
       let buffer = Buffer.create 64 in
       let rec loop () =
         match Stream.peek stream with
-        | Some c when is_quoted_string_char c ->
+        | Some c when c=delim ->
+          Stream.junk stream; Buffer.contents buffer
+        | Some '\\' ->
+          Stream.junk stream;
+          (match Stream.peek stream with
+          | Some c when c=delim ->
+            Buffer.add_char buffer delim; Stream.junk stream
+          | _ ->
+            Buffer.add_char buffer '\\');
+          loop ()
+        | Some c ->
           Buffer.add_char buffer c; Stream.junk stream; loop ()
-        | Some '"' -> Stream.junk stream; Buffer.contents buffer
-        | _ -> failwith "Soup.Selector.parse: unterminated string"
+        | None -> failwith "Soup.Selector.parse: unterminated string"
       in
       loop ()
     | _ -> failwith "Soup.Selector.parse: expected a quoted string"
 
   let parse_string stream =
     match Stream.peek stream with
-    | Some '"' -> parse_quoted_string stream
+    | Some '"' | Some '\'' -> parse_quoted_string stream
     | _ ->
       let buffer = Buffer.create 32 in
       let rec loop () =
