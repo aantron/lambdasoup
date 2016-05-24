@@ -17,4 +17,5 @@ script:
   - make reverse-dependency-test
   - opam install -y ounit
   - make test
+  - make performance-test
   - "[ $DOCS == no ] || make docs"

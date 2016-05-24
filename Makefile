@@ -24,6 +24,9 @@ BS4_MISSING := Beautiful Soup not installed. Skipping Python performance test.
 .PHONY : test
 test :
 	$(OCAMLBUILD) $(CFLAGS) test.native --
+
+.PHONY : performance-test
+performance-test :
 	$(OCAMLBUILD) $(CFLAGS) performance.native --
 	$(OCAMLBUILD) $(CFLAGS) performance.byte --
 	@((python -c "import bs4" 2> /dev/null \
@@ -38,7 +41,7 @@ reverse-dependency-test :
 		$(OCAMLBUILD) $(CFLAGS) dependency.native --
 
 .PHONY : all-tests
-all-tests : uninstall install test reverse-dependency-test
+all-tests : uninstall install test performance-test reverse-dependency-test
 
 HTML := docs/html
 
