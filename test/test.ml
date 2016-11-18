@@ -149,7 +149,7 @@ let suites = [
       in
 
       test "[id=\"unterminated]";
-      test "[id=\"un\"escaped\"]",
+      test "[id=\"un\"escaped\"]";
       test "[id='unterminated]";
       test "[id='un'escaped']");
 
