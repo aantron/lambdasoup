@@ -917,6 +917,13 @@ let ($?) node selector = node |> select_one selector
 
 let ($$) node selector = node |> select selector
 
+module Infix =
+struct
+  let ($) = ($)
+  let ($?) = ($?)
+  let ($$) = ($$)
+end
+
 let _is_void_element_name = function
   | "area" | "base" | "br" | "col" | "command" | "embed" | "hr" | "img"
   | "input" | "keygen" | "link" | "meta" | "param" | "source" | "track"
