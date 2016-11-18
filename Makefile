@@ -11,8 +11,7 @@ endif
 
 CFLAGS := -cflags -w,+A-9-48$(BIN_ANNOT)$(SAFE_STRING)
 
-BUILD_DIR := build
-OCAMLBUILD := ocamlbuild -use-ocamlfind -build-dir $(BUILD_DIR)
+OCAMLBUILD := ocamlbuild -use-ocamlfind -no-links
 DEP_TEST_DIR := test/dependency
 
 .PHONY : build
@@ -50,10 +49,10 @@ docs : docs-postprocess
 	$(OCAMLBUILD) docs/soup.docdir/index.html
 	rm -rf $(HTML)
 	mkdir -p $(HTML)
-	rsync -r build/docs/soup.docdir/* $(HTML)/
+	rsync -r _build/docs/soup.docdir/* $(HTML)/
 	cp docs/style.css $(HTML)/
 	rm $(HTML)/index*.html
-	build/docs/postprocess.native < $(HTML)/Soup.html > $(HTML)/index.html
+	_build/docs/postprocess.native < $(HTML)/Soup.html > $(HTML)/index.html
 	rm $(HTML)/Soup.html $(HTML)/*R*html $(HTML)/type_Soup.html $(HTML)/*.stamp
 	@echo "\nSee docs/html/index.html"
 
@@ -74,9 +73,9 @@ publish-docs : docs
 		&& git push -f
 
 INSTALL := \
-	build/src/lambdasoup.cma build/src/lambdasoup.cmxa build/src/lambdasoup.a \
-	build/src/soup.cmi build/src/soup.mli build/src/soup.cmti \
-	build/src/soup.cmt build/src/soup.cmx
+	_build/src/lambdasoup.cma _build/src/lambdasoup.cmxa \
+	_build/src/lambdasoup.a _build/src/soup.cmi _build/src/soup.mli \
+	_build/src/soup.cmti _build/src/soup.cmt _build/src/soup.cmx
 PACKAGE := lambdasoup
 
 .PHONY : ocamlfind-install
