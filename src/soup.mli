@@ -91,6 +91,13 @@ val ($?) : (_ node) -> string -> element node option
 val ($$) : (_ node) -> string -> element nodes
 (** [node $$ selector] is the same as [node |> select selector]. *)
 
+(** Infix operators. You should open only this module. *)
+module Infix :
+sig
+  val ($) : (_ node) -> string -> element node
+  val ($?) : (_ node) -> string -> element node option
+  val ($$) : (_ node) -> string -> element nodes
+end
 
 
 (** {2 Options} *)
