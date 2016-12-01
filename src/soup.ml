@@ -52,22 +52,22 @@ type element = unit
 type general = unit
 type soup = unit
 
-type _element_values =
+type element_values =
   {mutable name       : string;
    mutable attributes : (string * string) list;
    mutable children   : general node list}
 
-and _document_values =
+and document_values =
   {mutable roots : general node list}
 
 and 'a node =
   {mutable self   : 'b. 'b node option;
    mutable parent : general node option;
-   values         : [ `Element of _element_values
+   values         : [ `Element of element_values
                     | `Text of string
-                    | `Document of _document_values ]}
+                    | `Document of document_values ]}
 
-let _require_internal message = function
+let require_internal message = function
   | None -> failwith message
   | Some v -> v
 
@@ -75,13 +75,13 @@ let require = function
   | None -> failwith "require: argument is None"
   | Some v -> v
 
-let _forget_type : (_ node) -> (_ node) =
+let forget_type : (_ node) -> (_ node) =
   fun n ->
-    _require_internal
+    require_internal
       "Soup._forget_type: internal error: node's self reference not set"
       n.self
 
-let _create_element name attributes children =
+let create_element name attributes children =
   let values = {name; attributes; children} in
   let node = {self = None; parent = None; values = `Element values} in
   node.self <- Some node;
@@ -93,13 +93,13 @@ let create_text text =
   node.self <- Some node;
   node
 
-let _create_document roots =
+let create_document roots =
   let node = {self = None; parent = None; values = `Document {roots}} in
   node.self <- Some node;
   roots |> List.iter (fun root -> root.parent <- Some node);
   node
 
-let create_soup () = _create_document []
+let create_soup () = create_document []
 
 let from_signals signals =
   signals
@@ -108,20 +108,20 @@ let from_signals signals =
     ~element:(fun name attributes children ->
       let attributes =
         attributes |> List.map (fun ((_, n), v) -> n, v) in
-      _create_element (snd name) attributes children)
+      create_element (snd name) attributes children)
   |> Markup.to_list
-  |> _create_document
+  |> create_document
 
 let parse text =
   text |> Markup.string |> Markup.parse_html |> Markup.signals |> from_signals
 
-let _is_document node =
+let is_document node =
   match node.values with
   | `Element _ -> false
   | `Text _ -> false
   | `Document _ -> true
 
-let _is_text node =
+let is_text node =
   match node.values with
   | `Element _ -> false
   | `Text _ -> true
@@ -134,13 +134,13 @@ let is_element node =
   | `Document _ -> false
 
 let element node =
-  if is_element node then Some (_forget_type node) else None
+  if is_element node then Some (forget_type node) else None
 
 type 'a stop = {throw : 'b. 'a -> 'b}
 
 exception Stop of int64
 
-let _generate_id =
+let generate_id =
   let next = ref 0L in
   fun () ->
     let current = !next in
@@ -149,7 +149,7 @@ let _generate_id =
 
 let with_stop f =
   let result = ref None in
-  let id = _generate_id () in
+  let id = generate_id () in
   let stop = {throw = fun v -> result := Some v; raise_notrace (Stop id)} in
   try f stop
   with Stop id' when id' = id ->
@@ -177,7 +177,7 @@ let has_attribute name node =
   | None -> false
   | Some _ -> true
 
-let _split_attribute s =
+let split_attribute s =
   let rec loop index vs =
     if index = String.length s then List.rev vs
     else
@@ -196,15 +196,15 @@ let _split_attribute s =
 let classes node =
   match attribute "class" node with
   | None -> []
-  | Some classes -> _split_attribute classes
+  | Some classes -> split_attribute classes
 
 let id = attribute "id"
 
 type 'a nodes = {eliminate : 'b. ('b -> 'a node -> 'b) -> 'b -> 'b}
 
-let _empty = {eliminate = fun _ init -> init}
+let empty = {eliminate = fun _ init -> init}
 
-let _singleton node = {eliminate = fun f init -> f init node}
+let singleton node = {eliminate = fun f init -> f init node}
 
 let fold f init sequence = sequence.eliminate f init
 
@@ -249,45 +249,45 @@ let elements sequence =
       | None -> v
       | Some element -> f v element)}
 
-let _child_list = function
+let child_list = function
   | {values = `Element {children; _}; _} -> Some children
   | {values = `Document {roots}; _} -> Some roots
   | _ -> None
 
 let children node =
-  match _child_list node with
+  match child_list node with
   | Some children -> {eliminate = fun f init -> List.fold_left f init children}
-  | _ -> _empty
+  | _ -> empty
 
 let rec descendants node =
   {eliminate = fun f init ->
     init |> (children node).eliminate (fun v child ->
-      f v child |> (descendants (_forget_type child)).eliminate f)}
+      f v child |> (descendants (forget_type child)).eliminate f)}
 
 let child node = node |> children |> first
 
 let child_element node = node |> children |> elements |> first
 
-let _simple_parent node = node.parent
+let simple_parent node = node.parent
 
 let parent node =
   match node.parent with
   | None -> None
-  | Some node when _is_document node -> None
+  | Some node when is_document node -> None
   | Some node -> Some node
 
-let rec _general_ancestors get_parent node =
+let rec general_ancestors get_parent node =
   {eliminate = fun f init ->
     match get_parent node with
     | None -> init
     | Some parent ->
       f init parent
-      |> (_general_ancestors get_parent (_forget_type parent)).eliminate f}
+      |> (general_ancestors get_parent (forget_type parent)).eliminate f}
 
-let _simple_ancestors = _general_ancestors _simple_parent
-let ancestors node = _general_ancestors parent node
+let simple_ancestors = general_ancestors simple_parent
+let ancestors node = general_ancestors parent node
 
-let _split_at_identity v l =
+let split_at_identity v l =
   let rec loop prefix = function
     | [] -> None
     | u::suffix ->
@@ -295,20 +295,20 @@ let _split_at_identity v l =
   in
   loop [] l
 
-let _siblings select node =
-  match _simple_parent node with
-  | None -> _empty
+let siblings select node =
+  match simple_parent node with
+  | None -> empty
   | Some parent ->
-    match _child_list parent with
-    | None -> _empty
+    match child_list parent with
+    | None -> empty
     | Some children ->
-      match _split_at_identity (_forget_type node) children with
-      | None -> _empty
+      match split_at_identity (forget_type node) children with
+      | None -> empty
       | Some lists ->
         {eliminate = fun f init -> select lists |> List.fold_left f init}
 
-let next_siblings node = _siblings snd node
-let previous_siblings node = _siblings fst node
+let next_siblings node = siblings snd node
+let previous_siblings node = siblings fst node
 
 let next_sibling node = next_siblings node |> first
 let previous_sibling node = previous_siblings node |> first
@@ -317,19 +317,19 @@ let next_element node = next_siblings node |> elements |> first
 let previous_element node = previous_siblings node |> elements |> first
 
 let index_of node =
-  match _simple_parent node with
+  match simple_parent node with
   | None -> 1
   | Some parent ->
-    match _child_list parent with
+    match child_list parent with
     | None -> failwith "internal error: index_of: parent has no children"
     | Some children ->
       with_stop (fun stop ->
         children |> List.iteri (fun index child ->
-          if child == (_forget_type node) then stop.throw (index + 1));
+          if child == (forget_type node) then stop.throw (index + 1));
         failwith "internal error: index_of: child not in parent's child list")
 
 let index_of_element element =
-  match _simple_parent element with
+  match simple_parent element with
   | None -> 1
   | Some parent ->
     with_stop (fun stop ->
@@ -341,18 +341,18 @@ let index_of_element element =
       |> ignore;
       failwith "internal error: element is not a child of its own parent")
 
-let _at_most_n_children count node =
+let at_most_n_children count node =
   match nth (count + 1) (children node) with
   | None -> true
   | Some _ -> false
 
-let no_children node = _at_most_n_children 0 node
-let at_most_one_child node = _at_most_n_children 1 node
+let no_children node = at_most_n_children 0 node
+let at_most_one_child node = at_most_n_children 1 node
 
 let is_root node =
   match node.parent with
-  | None -> not (_is_document node)
-  | Some parent -> _is_document parent
+  | None -> not (is_document node)
+  | Some parent -> is_document parent
 
 let tags name' node =
   let name' = String.lowercase name' in
@@ -363,7 +363,7 @@ let tags name' node =
 
 let tag name node = tags name node |> first
 
-let _normalize_children trim children =
+let normalize_children trim children =
   let rec loop prefix = function
     | [] -> List.rev prefix
     | node::rest ->
@@ -389,24 +389,24 @@ let rec leaf_text node =
   | `Element _
   | `Document _ ->
     let children =
-      _child_list node
-      |> _require_internal
+      child_list node
+      |> require_internal
         ("Soup.leaf_text: internal error: node is not a text node, " ^
          "but has no child list")
-      |> _normalize_children trim
+      |> normalize_children trim
     in
     match children with
     | [] -> Some ""
-    | [child] -> leaf_text (_forget_type child)
+    | [child] -> leaf_text (forget_type child)
     | _ -> None
 
 let rec texts node =
   match node.values with
   | `Text s -> [s]
   | `Element {children; _} ->
-    children |> List.map _forget_type |> List.map texts |> List.fold_left (@) []
+    children |> List.map forget_type |> List.map texts |> List.fold_left (@) []
   | `Document {roots} ->
-    roots |> List.map _forget_type |> List.map texts |> List.fold_left (@) []
+    roots |> List.map forget_type |> List.map texts |> List.fold_left (@) []
 
 let trimmed_texts node =
   texts node
@@ -484,28 +484,28 @@ struct
       | Exactly (name, value) -> attribute name node = Some value
       | Member (name, value) ->
         attribute name node
-        |> _require_internal captured
-        |> _split_attribute
+        |> require_internal captured
+        |> split_attribute
         |> List.mem value
       | HasDashSeparatedPrefix (name, value) ->
-        let value' = attribute name node |> _require_internal captured in
+        let value' = attribute name node |> require_internal captured in
         value' = value || has_prefix (value ^ "-") value'
       | Prefix (name, value) ->
-        attribute name node |> _require_internal captured |> has_prefix value
+        attribute name node |> require_internal captured |> has_prefix value
       | Suffix (name, value) ->
-        attribute name node |> _require_internal captured |> has_suffix value
+        attribute name node |> require_internal captured |> has_suffix value
       | Substring (name, value) ->
-        attribute name node |> _require_internal captured |> has_substring value
+        attribute name node |> require_internal captured |> has_substring value
 
     with _ -> false
 
   let element_count node =
-    match _simple_parent node with
+    match simple_parent node with
     | None -> 1
     | Some parent -> parent |> children |> elements |> count
 
   let element_count_with_name name' node =
-    match _simple_parent node with
+    match simple_parent node with
     | None -> 1
     | Some parent ->
       parent
@@ -515,7 +515,7 @@ struct
       |> count
 
   let element_index_with_name name' node =
-    match _simple_parent node with
+    match simple_parent node with
     | None -> 1
     | Some parent ->
       with_stop (fun stop ->
@@ -581,7 +581,7 @@ struct
         sequence.eliminate (fun v node -> f v node |> stop.throw) init)}
 
   let select root_node selector =
-    let root_node = _forget_type root_node in
+    let root_node = forget_type root_node in
 
     let matches_selector at_node =
       with_stop (fun stop ->
@@ -595,7 +595,7 @@ struct
                 let next_nodes =
                   match combinator with
                   | Descendant ->
-                    at_node |> _simple_ancestors |> up_to root_node
+                    at_node |> simple_ancestors |> up_to root_node
                   | Child -> at_node |> ancestors |> one
                   | IndirectSibling ->
                     at_node |> previous_siblings |> elements |> up_to root_node
@@ -609,7 +609,7 @@ struct
     in
 
     let candidates =
-      match _simple_parent root_node with
+      match simple_parent root_node with
       | None -> descendants root_node
       | Some parent -> descendants parent
     in
@@ -904,7 +904,7 @@ let select_one selector node = select selector node |> first
 
 let ($) node selector =
   node |> select_one selector
-  |> _require_internal (Printf.sprintf "Soup.($): cannot select '%s'" selector)
+  |> require_internal (Printf.sprintf "Soup.($): cannot select '%s'" selector)
 
 let ($?) node selector = node |> select_one selector
 
@@ -917,14 +917,14 @@ struct
   let ($$) = ($$)
 end
 
-let _is_void_element_name = function
+let is_void_element_name = function
   | "area" | "base" | "br" | "col" | "command" | "embed" | "hr" | "img"
   | "input" | "keygen" | "link" | "meta" | "param" | "source" | "track"
   | "wbr" -> true
   | _ -> false
 
 let signals root =
-  let root = _forget_type root in
+  let root = forget_type root in
 
   let rec traverse acc = function
     | {values = `Element {name; attributes; children}; _} ->
@@ -951,7 +951,7 @@ let pretty_print root =
 
 let to_string root = signals root |> Markup.write_html |> Markup.to_string
 
-let rec _equal_general normalize_children n n' =
+let rec equal_general normalize_children n n' =
   let equal_text s s' = s = s' in
 
   let equal_children children children' =
@@ -960,7 +960,7 @@ let rec _equal_general normalize_children n n' =
 
     try
       List.iter2 (fun c c' ->
-        if not (_equal_general normalize_children c c') then
+        if not (equal_general normalize_children c c') then
           raise_notrace (Invalid_argument "not equal"))
         children children';
       true
@@ -990,24 +990,24 @@ let rec _equal_general normalize_children n n' =
   | _ -> false
 
 let equal n n' =
-  _equal_general
-    (_normalize_children (fun s -> s)) (_forget_type n) (_forget_type n')
+  equal_general
+    (normalize_children (fun s -> s)) (forget_type n) (forget_type n')
 
 let equal_modulo_whitespace n n' =
-  _equal_general
-    (_normalize_children String.trim) (_forget_type n) (_forget_type n')
+  equal_general
+    (normalize_children String.trim) (forget_type n) (forget_type n')
 
-let _mutate_child_list f node =
+let mutate_child_list f node =
   match node.values with
   | `Element values -> values.children <- f values.children
   | `Document values -> values.roots <- f values.roots
   | `Text _ -> failwith "_mutate_child_list: node has no children"
 
-let _strip_document node =
-  if _is_document node then
+let strip_document node =
+  if is_document node then
     let children = node |> children |> to_list in
     (children |> List.iter (fun child -> child.parent <- None);
-    _mutate_child_list (fun _ -> []) node);
+    mutate_child_list (fun _ -> []) node);
     children
   else
     [node]
@@ -1016,19 +1016,19 @@ let delete node =
   match node.parent with
   | None -> ()
   | Some parent ->
-    _mutate_child_list
-      (List.filter (fun child -> child != (_forget_type node))) parent;
+    mutate_child_list
+      (List.filter (fun child -> child != (forget_type node))) parent;
     node.parent <- None
 
 let insert_at_index k element node =
-  let element = _forget_type element in
-  let node = _forget_type node in
+  let element = forget_type element in
+  let node = forget_type node in
 
   delete node;
 
-  let nodes = _strip_document node in
+  let nodes = strip_document node in
 
-  _mutate_child_list (fun l ->
+  mutate_child_list (fun l ->
     let rec loop prefix index = function
       | [] -> (List.rev prefix) @ nodes
       | x::l' ->
@@ -1049,25 +1049,25 @@ let insert_before target node =
   insert_at_index
     (index_of target)
     (parent target
-     |> _require_internal "Soup.insert_before: target node has no parent")
+     |> require_internal "Soup.insert_before: target node has no parent")
     node
 
 let insert_after target node =
   insert_at_index
     ((index_of target) + 1)
     (parent target
-     |> _require_internal "Soup.insert_after: target node has no parent")
+     |> require_internal "Soup.insert_after: target node has no parent")
     node
 
 let clear node =
-  _mutate_child_list (fun children ->
+  mutate_child_list (fun children ->
     children |> List.iter (fun child -> child.parent <- None); []) node
 
 let replace target node =
   delete node;
   let parent =
     parent target
-    |> _require_internal "Soup.replace: target node has no parent"
+    |> require_internal "Soup.replace: target node has no parent"
   in
   let index = index_of target in
   delete target;
@@ -1076,12 +1076,12 @@ let replace target node =
 let swap target element =
   let internal = "Soup.swap: internal error: non-element node given" in
   delete element;
-  let target_children = _child_list target |> _require_internal internal in
-  let element_children = _child_list element |> _require_internal internal in
+  let target_children = child_list target |> require_internal internal in
+  let element_children = child_list element |> require_internal internal in
   clear target;
   clear element;
-  _mutate_child_list (fun _ -> element_children) target;
-  _mutate_child_list (fun _ -> target_children) element;
+  mutate_child_list (fun _ -> element_children) target;
+  mutate_child_list (fun _ -> target_children) element;
   replace target element
 
 let wrap target element =
@@ -1092,11 +1092,11 @@ let wrap target element =
 
 let unwrap node =
   let parent =
-    parent node |> _require_internal "Soup.unwrap: node has no parent" in
+    parent node |> require_internal "Soup.unwrap: node has no parent" in
   let index = index_of node in
   delete node;
   let children =
-    match _child_list node with
+    match child_list node with
     | None -> []
     | Some l -> l
   in
@@ -1105,7 +1105,7 @@ let unwrap node =
 
 let append_root document node =
   delete node;
-  _mutate_child_list (fun f -> f @ [_forget_type node]) document;
+  mutate_child_list (fun f -> f @ [forget_type node]) document;
   node.parent <- Some document
 
 let set_name new_name = function
@@ -1127,20 +1127,20 @@ let set_attribute name value = function
       |> fun attributes -> (name, value)::attributes
   | _ -> ()
 
-let _set_classes classes element =
+let set_classes classes element =
   classes |> String.concat " " |> fun v -> set_attribute "class" v element
 
 let add_class class_ element =
   let classes = classes element in
   if List.mem class_ classes then ()
-  else _set_classes (class_::classes) element
+  else set_classes (class_::classes) element
 
 let remove_class class_ element =
   classes element
   |> List.filter (fun c -> c <> class_)
   |> function
     | [] -> delete_attribute "class" element
-    | v -> _set_classes v element
+    | v -> set_classes v element
 
 let create_element ?id ?class_ ?classes ?(attributes = []) ?inner_text name =
   let children =
@@ -1149,7 +1149,7 @@ let create_element ?id ?class_ ?classes ?(attributes = []) ?inner_text name =
     | Some s -> [create_text s]
   in
 
-  let element = _create_element name [] children in
+  let element = create_element name [] children in
 
   attributes |> List.iter (fun (n, v) -> set_attribute n v element);
 
@@ -1171,52 +1171,52 @@ let create_element ?id ?class_ ?classes ?(attributes = []) ?inner_text name =
 module R =
 struct
   let select_one s n =
-    select_one s n |> _require_internal "Soup.R.select_one: None"
+    select_one s n |> require_internal "Soup.R.select_one: None"
 
   let attribute s n =
-    attribute s n |> _require_internal "Soup.R.attribute: None"
+    attribute s n |> require_internal "Soup.R.attribute: None"
 
   let id n =
-    id n |> _require_internal "Soup.R.id: None"
+    id n |> require_internal "Soup.R.id: None"
 
   let element n =
-    element n |> _require_internal "Soup.R.element: None"
+    element n |> require_internal "Soup.R.element: None"
 
   let leaf_text n =
-    leaf_text n |> _require_internal "Soup.R.leaf_text: None"
+    leaf_text n |> require_internal "Soup.R.leaf_text: None"
 
   let nth n t =
-    nth n t |> _require_internal "Soup.R.nth: None"
+    nth n t |> require_internal "Soup.R.nth: None"
 
   let first t =
-    first t |> _require_internal "Soup.R.first: None"
+    first t |> require_internal "Soup.R.first: None"
 
   let last t =
-    last t |> _require_internal "Soup.R.last: None"
+    last t |> require_internal "Soup.R.last: None"
 
   let tag s n =
-    tag s n |> _require_internal "Soup.R.tag: None"
+    tag s n |> require_internal "Soup.R.tag: None"
 
   let parent n =
-    parent n |> _require_internal "Soup.R.parent: None"
+    parent n |> require_internal "Soup.R.parent: None"
 
   let child n =
-    child n |> _require_internal "Soup.R.child: None"
+    child n |> require_internal "Soup.R.child: None"
 
   let child_element n =
-    child_element n |> _require_internal "Soup.R.child_element: None"
+    child_element n |> require_internal "Soup.R.child_element: None"
 
   let next_sibling n =
-    next_sibling n |> _require_internal "Soup.R.next_sibling: None"
+    next_sibling n |> require_internal "Soup.R.next_sibling: None"
 
   let previous_sibling n =
-    previous_sibling n |> _require_internal "Soup.R.previous_sibling: None"
+    previous_sibling n |> require_internal "Soup.R.previous_sibling: None"
 
   let next_element n =
-    next_element n |> _require_internal "Soup.R.next_element: None"
+    next_element n |> require_internal "Soup.R.next_element: None"
 
   let previous_element n =
-    previous_element n |> _require_internal "Soup.R.previous_element: None"
+    previous_element n |> require_internal "Soup.R.previous_element: None"
 end
 
 let read_channel channel = Markup.channel channel |> Markup.to_string
