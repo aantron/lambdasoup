@@ -16,7 +16,11 @@ ifeq ($(shell test $(OCAML_VERSION) -ge 400 && echo true),true)
 BIN_ANNOT := ,-bin-annot
 endif
 
-CFLAGS := -cflags -w,+A$(BIN_ANNOT)$(SAFE_STRING)
+ifdef TRAVIS_COMMIT
+WERROR := ,-warn-error,+A-3
+endif
+
+CFLAGS := -cflags -w,+A$(BIN_ANNOT)$(SAFE_STRING)$(WERROR)
 
 OCAMLBUILD := ocamlbuild -use-ocamlfind -no-links
 DEP_TEST_DIR := test/dependency
