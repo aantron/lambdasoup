@@ -46,6 +46,19 @@ struct
       in
       let suffix_length = measure_suffix 0 in
       String.sub s 0 (String.length s - suffix_length)
+
+  (* Convert multiple deprecation warnings into one warning. This function can
+     be removed from the module if/when Lambda Soup supports only
+     OCaml >= 4.03. *)
+  let lowercase_ascii = lowercase
+end
+
+module Char =
+struct
+  include Char
+
+  (* See comment by String.lowercase_ascii above. *)
+  let lowercase_ascii = lowercase
 end
 
 type element = unit
@@ -158,7 +171,7 @@ let with_stop f =
     | Some v -> v
 
 let name = function
-  | {values = `Element {name; _}; _} -> String.lowercase name
+  | {values = `Element {name; _}; _} -> String.lowercase_ascii name
   | _ -> failwith "name: not an element"
 
 let fold_attributes f init = function
@@ -355,7 +368,7 @@ let is_root node =
   | Some parent -> is_document parent
 
 let tags name' node =
-  let name' = String.lowercase name' in
+  let name' = String.lowercase_ascii name' in
   node
   |> descendants
   |> elements
@@ -559,7 +572,7 @@ struct
 
   and matches_simple_selector node = function
     | Type Universal -> true
-    | Type (Name name') -> name node = (String.lowercase name')
+    | Type (Name name') -> name node = (String.lowercase_ascii name')
     | Attribute attribute_selector ->
       matches_attribute_selector node attribute_selector
     | Pseudo_class pseudo_class_selector ->
@@ -622,7 +635,7 @@ struct
     ((Char.code c) >= (Char.code '0')) && ((Char.code c) <= (Char.code '9'))
 
   let is_identifier_char c =
-    let c = Char.lowercase c in
+    let c = Char.lowercase_ascii c in
     ((Char.code c) >= (Char.code 'a') && (Char.code c) <= (Char.code 'z')) ||
     (is_numeric_char c) || (c == '-') || (c == '_')
 
@@ -1110,7 +1123,7 @@ let append_root document node =
 
 let set_name new_name = function
   | {values = `Element e; _} ->
-    e.name <- new_name |> String.trim |> String.lowercase
+    e.name <- new_name |> String.trim |> String.lowercase_ascii
   | _ -> ()
 
 let delete_attribute name = function
