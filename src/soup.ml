@@ -134,12 +134,6 @@ let is_document node =
   | `Text _ -> false
   | `Document _ -> true
 
-let is_text node =
-  match node.values with
-  | `Element _ -> false
-  | `Text _ -> true
-  | `Document _ -> false
-
 let is_element node =
   match node.values with
   | `Element _ -> true
@@ -216,8 +210,6 @@ let id = attribute "id"
 type 'a nodes = {eliminate : 'b. ('b -> 'a node -> 'b) -> 'b -> 'b}
 
 let empty = {eliminate = fun _ init -> init}
-
-let singleton node = {eliminate = fun f init -> f init node}
 
 let fold f init sequence = sequence.eliminate f init
 
@@ -929,12 +921,6 @@ struct
   let ($?) = ($?)
   let ($$) = ($$)
 end
-
-let is_void_element_name = function
-  | "area" | "base" | "br" | "col" | "command" | "embed" | "hr" | "img"
-  | "input" | "keygen" | "link" | "meta" | "param" | "source" | "track"
-  | "wbr" -> true
-  | _ -> false
 
 let signals root =
   let root = forget_type root in
