@@ -488,13 +488,13 @@ val equal_modulo_whitespace : (_ node) -> (_ node) -> bool
 (** {2 Mutation} *)
 
 val create_element :
-    ?id:string ->
-    ?class_:string ->
-    ?classes:string list ->
-    ?attributes:(string * string) list ->
-    ?inner_text:string ->
-    string ->
-        element node
+  ?id:string ->
+  ?class_:string ->
+  ?classes:string list ->
+  ?attributes:(string * string) list ->
+  ?inner_text:string ->
+  string ->
+    element node
 (** [create_element tag] creates a new element with the name [tag].
 
     If [~attributes] is specified, the given attributes are added to the
