@@ -294,6 +294,10 @@ val flatten : ('a node -> 'b nodes) -> 'a nodes -> 'b nodes
 val iter : ('a node -> unit) -> 'a nodes -> unit
 (** [iter f t] applies [f] to each node in [t]. *)
 
+val rev : 'a nodes -> 'a nodes
+(** Reverses the given node sequence. Note that this forces traversal of the
+    sequence. *)
+
 val to_list : 'a nodes -> 'a node list
 (** Converts the given node sequence to a list. *)
 

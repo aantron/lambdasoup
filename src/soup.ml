@@ -252,6 +252,10 @@ let count sequence = sequence |> fold (fun count _ -> count + 1) 0
 
 let to_list sequence = fold (fun l node -> node::l) [] sequence |> List.rev
 
+let of_list l = {eliminate = fun f init -> List.fold_left f init l}
+
+let rev sequence = sequence |> to_list |> List.rev |> of_list
+
 let elements sequence =
   {eliminate = fun f init ->
     init |> sequence.eliminate (fun v node ->
