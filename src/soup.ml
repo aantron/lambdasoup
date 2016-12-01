@@ -166,17 +166,19 @@ let with_stop f =
   try f stop
   with Stop id' when id' = id ->
     match !result with
-    | None -> failwith "internal error: with_stop: !result = None"
+    | None -> (*BISECT-IGNORE*)
+      failwith "Soup.with_stop: internal error: !result = None"
     | Some v -> v
 
 let name = function
   | {values = `Element {name; _}; _} -> String.lowercase_ascii name
-  | _ -> failwith "name: not an element"
+  | _ -> failwith "Soup.name: internal error: not an element" (*BISECT-IGNORE*)
 
 let fold_attributes f init = function
   | {values = `Element {attributes; _}; _} ->
     attributes |> List.fold_left (fun v (name, value) -> f v name value) init
-  | _ -> init
+  | _ -> (*BISECT-IGNORE*)
+    failwith "Soup.fold_attributes: internal error: not an element"
 
 let attribute name node =
   with_stop (fun stop ->
@@ -308,28 +310,32 @@ let siblings node =
     children parent
     |> filter (fun child -> child != (forget_type node))
 
-let split_at_identity v l =
+let split_at_identity function_name v l =
   let rec loop prefix = function
-    | [] -> None
+    | [] -> (*BISECT-IGNORE*)
+      failwith
+        ("Soup." ^ function_name ^
+         ": internal error: child not in parent's child list")
     | u::suffix ->
-      if u == v then Some (prefix, suffix) else loop (u::prefix) suffix
+      if u == v then prefix, suffix else loop (u::prefix) suffix
   in
   loop [] l
 
-let sibling_lists select node =
+let sibling_lists function_name select node =
   match simple_parent node with
   | None -> empty
   | Some parent ->
     match child_list parent with
-    | None -> empty
+    | None -> (*BISECT-IGNORE*)
+      failwith
+        ("Soup." ^ function_name ^ ": internal error: parent has no children")
     | Some children ->
-      match split_at_identity (forget_type node) children with
-      | None -> empty
-      | Some lists ->
-        {eliminate = fun f init -> select lists |> List.fold_left f init}
+      let lists =
+        split_at_identity function_name (forget_type node) children in
+      {eliminate = fun f init -> select lists |> List.fold_left f init}
 
-let next_siblings node = sibling_lists snd node
-let previous_siblings node = sibling_lists fst node
+let next_siblings node = sibling_lists "next_siblings" snd node
+let previous_siblings node = sibling_lists "previous_siblings" fst node
 
 let next_sibling node = next_siblings node |> first
 let previous_sibling node = previous_siblings node |> first
@@ -342,12 +348,14 @@ let index_of node =
   | None -> 1
   | Some parent ->
     match child_list parent with
-    | None -> failwith "internal error: index_of: parent has no children"
+    | None -> (*BISECT-IGNORE*)
+      failwith "Soup.index_of: internal error: parent has no children"
     | Some children ->
       with_stop (fun stop ->
         children |> List.iteri (fun index child ->
           if child == (forget_type node) then stop.throw (index + 1));
-        failwith "internal error: index_of: child not in parent's child list")
+        failwith (*BISECT-IGNORE*)
+          "Soup.index_of: internal error: child not in parent's child list")
 
 let index_of_element element =
   match simple_parent element with
@@ -360,7 +368,9 @@ let index_of_element element =
       |> fold (fun index element' ->
         if element' == element then stop.throw index else index + 1) 1
       |> ignore;
-      failwith "internal error: element is not a child of its own parent")
+      failwith (*BISECT-IGNORE*)
+        ("Soup.index_of_element: internal error: " ^
+        "element is not a child of its own parent"))
 
 let at_most_n_children count node =
   match nth (count + 1) (children node) with
@@ -549,34 +559,31 @@ struct
           if element == node then stop.throw index else index + 1)
           1
         |> ignore;
-        failwith
-          ("Soup.Selector.element_index_with_name: internal_error: " ^
+        failwith (*BISECT-IGNORE*)
+          ("Soup.Selector.element_index_with_name: internal error: " ^
            "parent does not have given child"))
 
   let conditional_mod n a = if a = 0 then n else n mod a
 
   let rec matches_pseudo_class_selector node selector =
-    try
-      match selector with
-      | Root -> parent node = None
-      | NthChild (a, b) -> conditional_mod (index_of_element node) a = b
-      | NthLastChild (a, b) ->
-        let element_count = element_count node in
-        conditional_mod (element_count - (index_of_element node) + 1) a = b
-      | NthOfType (a, b) ->
-        conditional_mod (element_index_with_name (name node) node) a = b
-      | NthLastOfType (a, b) ->
-        let name = name node in
-        let element_count = element_count_with_name name node in
-        conditional_mod
-          (element_count - (element_index_with_name name node) + 1) a = b
-      | OnlyChild -> element_count node = 1
-      | OnlyOfType -> element_count_with_name (name node) node = 1
-      | Empty -> no_children node
-      | Content s -> texts node |> String.concat "" |> has_substring s
-      | Not selector -> not (matches_simple_selector node selector)
-
-    with Division_by_zero -> false
+    match selector with
+    | Root -> parent node = None
+    | NthChild (a, b) -> conditional_mod (index_of_element node) a = b
+    | NthLastChild (a, b) ->
+      let element_count = element_count node in
+      conditional_mod (element_count - (index_of_element node) + 1) a = b
+    | NthOfType (a, b) ->
+      conditional_mod (element_index_with_name (name node) node) a = b
+    | NthLastOfType (a, b) ->
+      let name = name node in
+      let element_count = element_count_with_name name node in
+      conditional_mod
+        (element_count - (element_index_with_name name node) + 1) a = b
+    | OnlyChild -> element_count node = 1
+    | OnlyOfType -> element_count_with_name (name node) node = 1
+    | Empty -> no_children node
+    | Content s -> texts node |> String.concat "" |> has_substring s
+    | Not selector -> not (matches_simple_selector node selector)
 
   and matches_simple_selector node = function
     | Type Universal -> true
@@ -679,7 +686,7 @@ struct
       try
         let name = parse_identifier stream in
         Name name
-      with _ -> failwith "Soup.Selector.parse: expected a tag name or '*'"
+      with _ -> failwith "Soup.Selector.parse: expected tag name or '*'"
 
   let parse_attribute_operator stream =
     match Stream.npeek 2 stream with
@@ -695,12 +702,12 @@ struct
       let buffer = Buffer.create 64 in
       let rec loop () =
         match Stream.peek stream with
-        | Some c when c=delim ->
+        | Some c when c = delim ->
           Stream.junk stream; Buffer.contents buffer
         | Some '\\' ->
           Stream.junk stream;
           (match Stream.peek stream with
-          | Some c when c=delim ->
+          | Some c when c = delim ->
             Buffer.add_char buffer delim; Stream.junk stream
           | _ ->
             Buffer.add_char buffer '\\');
@@ -710,7 +717,7 @@ struct
         | None -> failwith "Soup.Selector.parse: unterminated string"
       in
       loop ()
-    | _ -> failwith "Soup.Selector.parse: expected a quoted string"
+    | _ -> failwith "Soup.Selector.parse: expected quoted string"
 
   let parse_string stream =
     match Stream.peek stream with
@@ -719,7 +726,7 @@ struct
       let buffer = Buffer.create 32 in
       let rec loop () =
         match Stream.peek stream with
-        | Some ')' | Some ']' | None -> Buffer.contents buffer
+        | Some ']' | None -> Buffer.contents buffer
         | Some c -> Buffer.add_char buffer c; Stream.junk stream; loop ()
       in
       loop ()
@@ -733,62 +740,53 @@ struct
     loop ()
 
   let parse_attribute_selector stream =
-    match Stream.peek stream with
-    | Some '[' ->
-      Stream.junk stream;
-      consume_whitespace stream;
-      let name = parse_identifier stream in
+    Stream.junk stream;
+    consume_whitespace stream;
+    let name = parse_identifier stream in
+    consume_whitespace stream;
+    (match Stream.peek stream with
+    | None -> failwith "Soup.Selector.parse: unterminated attribute selector"
+    | Some ']' -> Stream.junk stream; Present name
+    | Some _ ->
+      let operator = parse_attribute_operator stream in
       consume_whitespace stream;
       (match Stream.peek stream with
-      | None -> failwith "Soup.Selector.parse: unterminated attribute selector"
-      | Some ']' -> Stream.junk stream; Present name
+      | None ->
+        failwith "Soup.Selector.parse: unterminated attribute selector"
+      | Some ']' ->
+        failwith "Soup.Selector.parse: expected value in attribute selector"
       | Some _ ->
-        let operator = parse_attribute_operator stream in
+        let value = parse_string stream in
         consume_whitespace stream;
         (match Stream.peek stream with
         | None ->
           failwith "Soup.Selector.parse: unterminated attribute selector"
         | Some ']' ->
-          failwith "Soup.Selector.parse: expected value in attribute selector"
+          Stream.junk stream;
+          (match operator with
+          | "=" -> Exactly (name, value)
+          | "~=" -> Member (name, value)
+          | "|=" -> HasDashSeparatedPrefix (name, value)
+          | "^=" -> Prefix (name, value)
+          | "$=" -> Suffix (name, value)
+          | "*=" -> Substring (name, value)
+          | _ ->
+            Printf.sprintf
+              "Soup.Selector.parse: invalid attribute operator '%s'" operator
+            |> failwith)
         | Some _ ->
-          let value = parse_string stream in
-          consume_whitespace stream;
-          (match Stream.peek stream with
-          | None ->
-            failwith "Soup.Selector.parse: unterminated attribute selector"
-          | Some ']' ->
-            Stream.junk stream;
-            (match operator with
-            | "=" -> Exactly (name, value)
-            | "~=" -> Member (name, value)
-            | "|=" -> HasDashSeparatedPrefix (name, value)
-            | "^=" -> Prefix (name, value)
-            | "$=" -> Suffix (name, value)
-            | "*=" -> Substring (name, value)
-            | _ ->
-              Printf.sprintf
-                "Soup.Selector.parse: invalid attribute operator '%s'" operator
-              |> failwith)
-          | Some _ ->
-            failwith
-              "Soup.Selector.parse: expected end of attribute selector (']')")))
-    | _ -> failwith "Soup.Selector.parse: expected attribute selector"
+          failwith
+            "Soup.Selector.parse: expected end of attribute selector (']')")))
 
   let parse_class_selector stream =
-    match Stream.peek stream with
-    | Some '.' ->
-      Stream.junk stream;
-      let value = parse_identifier stream in
-      Member ("class", value)
-    | _ -> failwith "Soup.Selector.parse: expected class selector"
+    Stream.junk stream;
+    let value = parse_identifier stream in
+    Member ("class", value)
 
   let parse_id_selector stream =
-    match Stream.peek stream with
-    | Some '#' ->
-      Stream.junk stream;
-      let value = parse_identifier stream in
-      Exactly ("id", value)
-    | _ -> failwith "Soup.Selector.parse: expected id selector"
+    Stream.junk stream;
+    let value = parse_identifier stream in
+    Exactly ("id", value)
 
   let parse_number stream =
     let buffer = Buffer.create 16 in
@@ -810,7 +808,7 @@ struct
       | Some c' when is_numeric_char c' ->
         let b = parse_number stream in
         if c = '+' then a, b else a, b + a
-      | _ -> failwith "Soup.pparse: expected a number after '+' or '-'")
+      | _ -> failwith "Soup.Selector.parse: expected number after '+' or '-'")
     | _ -> a, 0
 
   let parse_modular_pattern stream =
@@ -841,43 +839,40 @@ struct
     | _ -> failwith "Soup.Selector.parse: expected parenthesized expression"
 
   let rec parse_pseudo_class_selector stream =
-    match Stream.peek stream with
-    | Some ':' ->
-      Stream.junk stream;
-      let function_ = parse_identifier stream in
-      (match function_ with
-      | "root" -> Root
-      | "first-child" -> NthChild (0, 1)
-      | "last-child" -> NthLastChild (0, 1)
-      | "first-of-type" -> NthOfType (0, 1)
-      | "last-of-type" -> NthLastOfType (0, 1)
-      | "only-child" -> OnlyChild
-      | "only-of-type" -> OnlyOfType
-      | "nth-child" ->
-        let a, b = parse_parenthesized_value parse_modular_pattern stream in
-        NthChild (a, b)
-      | "nth-of-type" ->
-        let a, b = parse_parenthesized_value parse_modular_pattern stream in
-        NthOfType (a, b)
-      | "nth-last-child" ->
-        let a, b = parse_parenthesized_value parse_modular_pattern stream in
-        NthLastChild (a, b)
-      | "nth-last-of-type" ->
-        let a, b = parse_parenthesized_value parse_modular_pattern stream in
-        NthLastOfType (a, b)
-      | "contains" ->
-        let s = parse_parenthesized_value parse_quoted_string stream in
-        Content s
-      | "empty" -> Empty
-      | "not" ->
-        let selector = parse_parenthesized_value parse_simple_selector stream in
-        Not selector
-      | _ ->
-        Printf.sprintf
-          "Soup.Selector.parse: unsupported pseudo-class or pseudo-element '%s'"
-          function_
-        |> failwith)
-    | _ -> failwith "Soup.Selector.parse: expected a pseudo-class"
+    Stream.junk stream;
+    let function_ = parse_identifier stream in
+    (match function_ with
+    | "root" -> Root
+    | "first-child" -> NthChild (0, 1)
+    | "last-child" -> NthLastChild (0, 1)
+    | "first-of-type" -> NthOfType (0, 1)
+    | "last-of-type" -> NthLastOfType (0, 1)
+    | "only-child" -> OnlyChild
+    | "only-of-type" -> OnlyOfType
+    | "nth-child" ->
+      let a, b = parse_parenthesized_value parse_modular_pattern stream in
+      NthChild (a, b)
+    | "nth-of-type" ->
+      let a, b = parse_parenthesized_value parse_modular_pattern stream in
+      NthOfType (a, b)
+    | "nth-last-child" ->
+      let a, b = parse_parenthesized_value parse_modular_pattern stream in
+      NthLastChild (a, b)
+    | "nth-last-of-type" ->
+      let a, b = parse_parenthesized_value parse_modular_pattern stream in
+      NthLastOfType (a, b)
+    | "contains" ->
+      let s = parse_parenthesized_value parse_quoted_string stream in
+      Content s
+    | "empty" -> Empty
+    | "not" ->
+      let selector = parse_parenthesized_value parse_simple_selector stream in
+      Not selector
+    | _ ->
+      Printf.sprintf
+        "Soup.Selector.parse: unknown pseudo-class or pseudo-element ':%s'"
+        function_
+      |> failwith)
 
   and parse_simple_selector stream =
     match Stream.peek stream with
@@ -1016,7 +1011,7 @@ let mutate_child_list f node =
   match node.values with
   | `Element values -> values.children <- f values.children
   | `Document values -> values.roots <- f values.roots
-  | `Text _ -> failwith "_mutate_child_list: node has no children"
+  | `Text _ -> failwith "Soup.mutate_child_list: node has no children"
 
 let strip_document node =
   if is_document node then
@@ -1115,7 +1110,8 @@ let unwrap node =
     | None -> []
     | Some l -> l
   in
-  clear node;
+  (try clear node
+  with Failure _ -> ());
   List.rev children |> List.iter (insert_at_index index parent)
 
 let append_root document node =
@@ -1126,13 +1122,15 @@ let append_root document node =
 let set_name new_name = function
   | {values = `Element e; _} ->
     e.name <- new_name |> String.trim |> String.lowercase_ascii
-  | _ -> ()
+  | _ -> (*BISECT-IGNORE*)
+    failwith "Soup.set_name: internal error: not an element"
 
 let delete_attribute name = function
   | {values = `Element e; _} ->
     e.attributes <-
       e.attributes |> List.filter (fun (name', _) -> name' <> name)
-  | _ -> ()
+  | _ -> (*BISECT-IGNORE*)
+    failwith "Soup.delete_attribute: internal error: not an element"
 
 let set_attribute name value = function
   | {values = `Element e; _} ->
@@ -1140,7 +1138,8 @@ let set_attribute name value = function
       e.attributes
       |> List.filter (fun (name', _) -> name' <> name)
       |> fun attributes -> (name, value)::attributes
-  | _ -> ()
+  | _ -> (*BISECT-IGNORE*)
+    failwith "Soup.set_attribute: internal error: not an element"
 
 let set_classes classes element =
   classes |> String.concat " " |> fun v -> set_attribute "class" v element

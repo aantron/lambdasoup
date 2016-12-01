@@ -40,6 +40,9 @@ let suites = [
       (try require None |> ignore; false with | Failure _ -> true | _ -> false)
       |> assert_bool "expected Failure");
 
+    ("require_succeeds" >:: fun _ ->
+      assert_equal (require (Some 0)) 0);
+
     ("parse-select-list" >:: fun _ ->
       let soup = page "list" |> parse in
       let test selector expected_count =
@@ -72,6 +75,9 @@ let suites = [
       test "li[id^=t]" 2;
       test "li[id$=e]" 3;
       test "li[id*=n]" 1;
+      test "p[data-foo|=bar]" 1;
+      test "p[data-foo|=baz]" 0;
+      test "li[class|=odd]" 3;
       test "li:nth-child(1)" 2;
       test "li:nth-child(3)" 1;
       test "ul li ~ li" 2;
@@ -97,7 +103,13 @@ let suites = [
       test "ul:nth-of-type(2)" 0;
       test "ul:nth-last-of-type(1)" 1;
       test "li:first-child" 2;
+      test "li:last-child" 2;
+      test "li:last-of-type" 2;
       test "li:first-of-type" 2;
+      test "html:only-child" 1;
+      test "body:only-child" 0; (* There is an implicit <head> element. *)
+      test "body:only-of-type" 1;
+      test "li:only-of-type" 0;
       test "li:contains(\"Item\")" 5;
       test "li:contains(\"5\")" 1;
       test "li:empty" 0;
@@ -169,6 +181,42 @@ let suites = [
 
     ("parse-select-google" >:: fun _ ->
       assert_equal (page "google" |> parse $$ "form[action]" |> count) 1);
+
+    ("parse-error" >:: fun _ ->
+      let prefix = "Soup.Selector.parse: " in
+      let soup = parse "<p></p>" in
+      let test selector message =
+        let result =
+          try soup |> select selector |> ignore; false
+          with Failure s ->
+            if not (s = prefix ^ message) then
+              assert_failure (Printf.sprintf "%s: got \"%s\"" selector s);
+            true
+        in
+        if not result then
+          assert_failure (Printf.sprintf "%s: parse succeeded" selector)
+      in
+
+      test "[]" "expected an identifier";
+      test ";" "expected tag name or '*'";
+      test "." "expected an identifier";
+      test "#" "expected an identifier";
+      test ">" "expected simple selector";
+      test "::" "expected an identifier";
+      test ":foo" "unknown pseudo-class or pseudo-element ':foo'";
+      test ":nth-child" "expected parenthesized expression";
+      test ":nth-child(n" "unterminated '('";
+      test ":nth-child(o)" "expected 'n', 'even', or 'odd'";
+      test ":nth-child(m)" "expected expression";
+      test ":contains(foo)" "expected quoted string";
+      test ":contains(" "expected quoted string";
+      test "[foo|]" "expected attribute operator";
+      test "[foo" "unterminated attribute selector";
+      test "[foo*=" "unterminated attribute selector";
+      test "[foo*=]" "expected value in attribute selector";
+      test "[foo=b" "unterminated attribute selector";
+      test "[foo&=bar]" "invalid attribute operator '&='";
+    );
 
     ("generalized-select" >:: fun _ ->
       let soup = page "list" |> parse in
@@ -257,6 +305,25 @@ let suites = [
       id "li:nth-child(2)" (Some "two");
       id "body" None);
 
+    ("classes" >:: fun _ ->
+      let soup =
+        parse "<p id='first' class=''><p id='second' class='foo bar  baz'>" in
+      assert_equal (soup $ "#first" |> classes) [];
+      assert_equal (soup $ "#second" |> classes) ["foo"; "bar"; "baz"]);
+
+    ("fold_attributes" >:: fun _ ->
+      let s =
+        page "list"
+        |> parse
+        $ "#four"
+        |> fold_attributes (fun acc name value ->
+          (Printf.sprintf "%s=%s" name value)::acc) []
+        |> List.rev
+        |> String.concat " "
+      in
+
+      assert_equal s "id=four class=odd");
+
     ("element-coerce" >:: fun _ ->
       let soup = page "list" |> parse in
 
@@ -295,6 +362,14 @@ let suites = [
     ("leaf_text-whitespace" >:: fun _ ->
       let soup = "<p> <span> <em>foobar</em> </span> </p>" |> parse in
       assert_equal (leaf_text soup) (Some "foobar"));
+
+    ("leaf_text-empty" >:: fun _ ->
+      let soup = "<p></p>" |> parse in
+      assert_equal (leaf_text soup) (Some ""));
+
+    ("texts-whole-document" >:: fun _ ->
+      let soup = "<p>foo</p><p>bar</p>" |> parse in
+      assert_equal (texts soup) ["foo"; "bar"]);
 
     ("children-traversal" >:: fun _ ->
       let soup = page "list" |> parse in
@@ -381,6 +456,22 @@ let suites = [
 
       assert_equal (soup |> ancestors |> to_list) []);
 
+    ("siblings-traversal" >:: fun _ ->
+      let soup = page "list" |> parse in
+
+      let expected_count selector n =
+        assert_equal ~msg:selector (soup $ selector |> siblings |> count) n in
+
+      expected_count "html" 1;
+      expected_count "ol" 6;
+
+      assert_equal
+        (soup $ "body" |> children |> R.first |> siblings |> count) 6;
+
+      assert_equal
+        (soup $ "ol" |> siblings |> elements |> to_list |> List.map name)
+        ["ul"; "p"]);
+
     ("next-siblings-traversal" >:: fun _ ->
       let soup = page "list" |> parse in
 
@@ -424,6 +515,13 @@ let suites = [
         (soup $ "p" |> previous_siblings |> elements
          |> to_list |> List.map name)
         ["ol"; "ul"]);
+
+    ("no-parent-siblings" >:: fun _ ->
+      let soup = parse "<html></html>" in
+
+      assert_equal (soup |> siblings |> count) 0;
+      assert_equal (soup |> next_siblings |> count) 0;
+      assert_equal (soup |> previous_siblings |> count) 0);
 
     ("to_list" >:: fun _ ->
       assert_equal
@@ -482,6 +580,17 @@ let suites = [
         ["html"; "head"; "body"; "ul"; "li"; "li"; "li"; "ol"; "li"; "li";
          "p"]);
 
+    ("rev" >:: fun _ ->
+      let reversed =
+        "<p></p><table></table><img/>"
+        |> parse
+        |> children
+        |> elements
+        |> rev
+        |> to_list
+      in
+      assert_equal (List.map name reversed) ["img"; "table"; "p"]);
+
     ("projection" >:: fun _ ->
       let nodes = page "list" |> parse $ "body" |> children |> elements in
 
@@ -518,6 +627,12 @@ let suites = [
       test index_of_element "ul" 1;
       test index_of_element "ol" 2;
       test index_of_element "p" 3);
+
+    ("index_of-special-case" >:: fun _ ->
+      let e = create_element "p" in
+
+      assert_equal (index_of e) 1;
+      assert_equal (index_of_element e) 1);
 
     ("tags" >:: fun _ ->
       let soup = page "list" |> parse in
@@ -738,7 +853,12 @@ let suites = [
       assert_equal (body |> children |> count) 0;
 
       original_children |> List.iter (fun child ->
-        assert_equal (parent child) None));
+        assert_equal (parent child) None);
+
+      try
+        "foo" |> parse |> R.child |> clear;
+        assert_failure "expected exception"
+      with Failure _ -> ());
 
     ("replace" >:: fun _ ->
       let body = page "list" |> parse $ "body" in
@@ -794,6 +914,14 @@ let suites = [
         (body |> descendants |> elements |> filter (fun e -> id e <> None)
          |> to_list |> List.map R.id)
         ["one"; "two"; "three"; "four"; "five"]);
+
+    ("unwrap text" >:: fun _ ->
+      let soup = parse "<p>foo</p>" in
+      let text = soup $ "p" |> R.child in
+
+      unwrap text;
+
+      assert_equal (soup |> to_string) "<p></p>");
 
     ("mutate-attribute" >:: fun _ ->
       let li = page "list" |> parse $ "li" in
@@ -851,6 +979,12 @@ let suites = [
       insert_before (without_adjacent_nodes $ "p") (create_text "ab");
       test "adjacent nodes" with_adjacent_nodes without_adjacent_nodes);
 
+    ("equal-with-attributes" >:: fun _ ->
+      let document1 = "<p class='foo' id='bar'></p>" in
+      let document2 = "<p id='bar' class='foo'></p>" in
+
+      assert_bool "equal" (equal (parse document1) (parse document2)));
+
     ("equal_modulo_whitespace" >:: fun _ ->
       let document1 = "<html><body>\n<p>foo</p>\n<p>bar</p>\n</body></html>" in
       let document2 = "<html><body><p>foo</p><p>bar</p></body></html>" in
@@ -877,6 +1011,48 @@ let suites = [
 
     ("multiple-roots" >:: fun _ ->
       assert_equal ("<p><p>" |> parse |> to_string) "<p></p><p></p>");
+
+    ("R.select_one" >:: fun _ ->
+      assert_equal (parse "<p>" |> R.select_one "p" |> name) "p");
+
+    ("R.attribute" >:: fun _ ->
+      assert_equal (parse "<p foo>" $ "p" |> R.attribute "foo") "");
+
+    ("R.last" >:: fun _ ->
+      assert_equal
+        (parse "<p></p><table></table>" $$ "*" |> R.last |> name) "table");
+
+    ("R.child_element" >:: fun _ ->
+      assert_equal (parse "<p><em>" $ "p" |> R.child_element |> name) "em");
+
+    ("R.next_sibling" >:: fun _ ->
+      assert_equal
+        (parse "<p></p><table></table>" $ "p"
+          |> R.next_sibling |> R.element |> name)
+        "table");
+
+    ("R.previous_sibling" >:: fun _ ->
+      assert_equal
+        (parse "<p></p><table></table>" $ "table"
+          |> R.previous_sibling |> R.element |> name)
+        "p");
+
+    ("R.next_element" >:: fun _ ->
+      assert_equal
+        (parse "<p></p><table></table>" $ "p" |> R.next_element |> name)
+        "table");
+
+    ("R.previous_element" >:: fun _ ->
+      assert_equal
+        (parse "<p></p><table></table>" $ "table" |> R.previous_element |> name)
+        "p");
+
+    ("read_channel" >:: fun _ ->
+      let channel = open_in "test/pages/list" in
+      let contents = read_channel channel in
+      close_in channel;
+
+      assert_equal (parse contents $$ "li" |> count) 5);
   ]
 ]
 

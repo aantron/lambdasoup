@@ -12,7 +12,7 @@
   <li id="five" class="even">Item 5</li>
 </ol>
 
-<p class="a b"></p>
+<p class="a b" data-foo="bar-lulz"></p>
 
 </body>
 </html>
