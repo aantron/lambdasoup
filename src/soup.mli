@@ -252,6 +252,10 @@ val ancestors : (_ node) -> element nodes
     ordered by proximity to [n], i.e. the sequence goes up the DOM tree to a
     root element. *)
 
+val siblings : (_ node) -> general nodes
+(** Sequence of all siblings of the given node. The node itself is not
+    included. *)
+
 val next_siblings : (_ node) -> general nodes
 (** Sequence of siblings of a node [n] that follow [n] in its parent's child
     list. *)

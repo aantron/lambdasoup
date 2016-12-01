@@ -297,6 +297,13 @@ let rec general_ancestors get_parent node =
 let simple_ancestors = general_ancestors simple_parent
 let ancestors node = general_ancestors parent node
 
+let siblings node =
+  match simple_parent node with
+  | None -> empty
+  | Some parent ->
+    children parent
+    |> filter (fun child -> child != (forget_type node))
+
 let split_at_identity v l =
   let rec loop prefix = function
     | [] -> None
@@ -305,7 +312,7 @@ let split_at_identity v l =
   in
   loop [] l
 
-let siblings select node =
+let sibling_lists select node =
   match simple_parent node with
   | None -> empty
   | Some parent ->
@@ -317,8 +324,8 @@ let siblings select node =
       | Some lists ->
         {eliminate = fun f init -> select lists |> List.fold_left f init}
 
-let next_siblings node = siblings snd node
-let previous_siblings node = siblings fst node
+let next_siblings node = sibling_lists snd node
+let previous_siblings node = sibling_lists fst node
 
 let next_sibling node = next_siblings node |> first
 let previous_sibling node = previous_siblings node |> first
