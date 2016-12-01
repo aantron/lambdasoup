@@ -17,7 +17,7 @@ let page : string -> string =
     let contents = file |> Filename.concat directory |> read_file in
     Hashtbl.replace table file contents);
 
-  fun page_name -> Hashtbl.find table page_name
+  fun page_name -> Hashtbl.find table (page_name ^ ".html")
 
 let suites = [
   "lambda-soup" >::: [
@@ -1048,7 +1048,7 @@ let suites = [
         "p");
 
     ("read_channel" >:: fun _ ->
-      let channel = open_in "test/pages/list" in
+      let channel = open_in "test/pages/list.html" in
       let contents = read_channel channel in
       close_in channel;
 

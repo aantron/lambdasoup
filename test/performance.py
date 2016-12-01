@@ -16,7 +16,7 @@ def measure(runs, name, f):
     print "%s: %.0f us" % (name, average)
 
 def main():
-    html = open("test/pages/google").read()
+    html = open("test/pages/google.html").read()
 
     def parse():
         return BeautifulSoup(html)
