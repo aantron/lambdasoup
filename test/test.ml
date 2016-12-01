@@ -881,4 +881,4 @@ let suites = [
 ]
 
 let () =
-  suites |> List.iter run_test_tt_main
+  suites |> List.iter (fun suite -> run_test_tt_main suite)

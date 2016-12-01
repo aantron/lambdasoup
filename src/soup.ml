@@ -116,17 +116,22 @@ let create_soup () = create_document []
 
 let from_signals signals =
   signals
-  |> Markup.trees
+  |> (fun s -> Markup.trees
     ~text:(fun ss -> create_text (String.concat "" ss))
     ~element:(fun name attributes children ->
       let attributes =
         attributes |> List.map (fun ((_, n), v) -> n, v) in
       create_element (snd name) attributes children)
+    s)
   |> Markup.to_list
   |> create_document
 
 let parse text =
-  text |> Markup.string |> Markup.parse_html |> Markup.signals |> from_signals
+  text
+  |> Markup.string
+  |> (fun s -> Markup.parse_html s)
+  |> Markup.signals
+  |> from_signals
 
 let is_document node =
   match node.values with
@@ -378,7 +383,7 @@ let normalize_children trim children =
         if s = "" then loop prefix rest
         else
           (match prefix with
-          | {values = `Text s'}::prefix' ->
+          | {values = `Text s'; _}::prefix' ->
             loop ((create_text (s' ^ s))::prefix') rest
           | _ -> loop ((create_text s)::prefix) rest)
       | _ -> loop (node::prefix) rest
@@ -983,9 +988,9 @@ let rec equal_general normalize_children n n' =
   in
 
   match n, n' with
-  | {values = `Text s}, {values = `Text s'} -> equal_text s s'
-  | {values = `Element v}, {values = `Element v'} -> equal_element v v'
-  | {values = `Document v}, {values = `Document v'} -> equal_document v v'
+  | {values = `Text s; _}, {values = `Text s'; _} -> equal_text s s'
+  | {values = `Element v; _}, {values = `Element v'; _} -> equal_element v v'
+  | {values = `Document v; _}, {values = `Document v'; _} -> equal_document v v'
   | _ -> false
 
 let equal n n' =

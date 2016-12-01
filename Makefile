@@ -16,7 +16,7 @@ ifeq ($(shell test $(OCAML_VERSION) -ge 400 && echo true),true)
 BIN_ANNOT := ,-bin-annot
 endif
 
-CFLAGS := -cflags -w,+A-9-48$(BIN_ANNOT)$(SAFE_STRING)
+CFLAGS := -cflags -w,+A$(BIN_ANNOT)$(SAFE_STRING)
 
 OCAMLBUILD := ocamlbuild -use-ocamlfind -no-links
 DEP_TEST_DIR := test/dependency
