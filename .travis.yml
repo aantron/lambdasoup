@@ -1,12 +1,12 @@
 language: c
 
 env:
-  - PPA=avsm/ocaml312+opam12 DOCS=no SWITCH=system
-  - PPA=avsm/ocaml40+opam12 DOCS=no SWITCH=system
+  - PPA=avsm/ocaml312+opam12 SWITCH=system
+  - PPA=avsm/ocaml40+opam12 SWITCH=system
   - PPA=avsm/ocaml41+opam12 SWITCH=system
   - PPA=avsm/ocaml42+opam12 SWITCH=system
   - PPA=avsm/ocaml42+opam12 SWITCH=4.03.0
-  - PPA=avsm/ocaml42+opam12 SWITCH=4.04.0
+  - PPA=avsm/ocaml42+opam12 SWITCH=4.04.0 DOCS=yes
 
 before_script:
   - sudo add-apt-repository -y ppa:$PPA
@@ -22,4 +22,4 @@ script:
   - opam install -y ounit
   - make test
   - make performance-test
-  - "[ $DOCS == no ] || make docs"
+  - "[ -z $DOCS ] || make docs"
