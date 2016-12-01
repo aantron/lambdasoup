@@ -1,10 +1,12 @@
-# Lambda Soup [![version 0.6][version]][releases] [![Documentation][doc-img]][docs] [![BSD license][license-img]][license] [![Travis status][travis-img]][travis]
+# Lambda Soup [![version 0.6][version]][releases] [![Documentation][doc-img]][docs] [![BSD license][license-img]][license] [![Travis status][travis-img]][travis] [![Coverage][coveralls-img]][coveralls]
 
 [version]:     https://img.shields.io/badge/version-0.6-blue.svg
 [doc-img]:     https://img.shields.io/badge/docs-online-blue.svg
 [license-img]: https://img.shields.io/badge/license-BSD-blue.svg
 [travis]:      https://travis-ci.org/aantron/lambda-soup/branches
 [travis-img]:  https://img.shields.io/travis/aantron/lambda-soup/master.svg
+[coveralls]:     https://coveralls.io/github/aantron/lambda-soup?branch=master
+[coveralls-img]: https://img.shields.io/coveralls/aantron/lambda-soup/master.svg
 
 Lambda Soup is a functional HTML scraping and manipulation library for OCaml
 aimed at being easy to use.

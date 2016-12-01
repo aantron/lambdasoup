@@ -3,6 +3,13 @@ OCAML_VERSION := \
 
 ifeq ($(shell test $(OCAML_VERSION) -ge 402 && echo true),true)
 SAFE_STRING := ,-safe-string
+ifeq ($(shell ocamlfind query -qe -qo bisect_ppx && echo true),true)
+COVERAGE := yes
+COVERAGE_TAGS := \
+	-tag-line '<src/*>: package(bisect_ppx)' \
+	-tag-line '<test/*.native>: package(bisect_ppx)'
+COVERAGE_DIR := coverage
+endif
 endif
 
 ifeq ($(shell test $(OCAML_VERSION) -ge 400 && echo true),true)
@@ -22,7 +29,15 @@ BS4_MISSING := Beautiful Soup not installed. Skipping Python performance test.
 
 .PHONY : test
 test :
-	$(OCAMLBUILD) $(CFLAGS) test.native --
+	@rm -f bisect*.out
+	$(OCAMLBUILD) $(COVERAGE_TAGS) $(CFLAGS) test.native --
+	@if [ "$(COVERAGE)" = yes ] ; then \
+		bisect-ppx-report -I _build -html $(COVERAGE_DIR) bisect*.out ; \
+		echo ; \
+		bisect-ppx-report -text - -summary-only bisect*.out \
+			| sed 's/Summary/Coverage/' ; \
+		echo "See $(COVERAGE_DIR)/index.html for coverage report" ; \
+	fi
 
 .PHONY : performance-test
 performance-test :

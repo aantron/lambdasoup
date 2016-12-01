@@ -2,3 +2,6 @@ scratch/
 _build/
 docs/html/
 /opam
+
+coverage/
+bisect*.out
