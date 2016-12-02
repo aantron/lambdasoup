@@ -25,3 +25,10 @@ script:
   - make performance-test
   - "[ -z $DOCS ] || make docs"
   - "[ -z $COVERAGE ] || ocveralls --prefix _build bisect*.out --send"
+
+notifications:
+  email:
+    recipients:
+      - antonbachin@yahoo.com
+    on_success: always
+    on_failure: always
