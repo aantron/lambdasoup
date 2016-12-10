@@ -4,6 +4,8 @@ open Soup
    current versions. *)
 let (|>) x f = f x
 
+let fmt = Printf.sprintf
+
 let read_file =
   let directory = "docs" in
   fun filename -> filename |> Filename.concat directory |> read_file
@@ -140,6 +142,21 @@ let () =
     in
     clear h2;
     append_child h2 a);
+
+  soup $$ "h2 ~ pre > span.keyword:contains('module')" |> iter (fun span ->
+    let pre = R.parent span in
+    let name = R.nth 3 (children pre) |> R.leaf_text |> String.trim in
+    let anchor = fmt "MODULE%s" name in
+    let replacement =
+      fmt
+        "<a href='#%s' id='%s'><span class='keyword'>module</span> %s</a> : %s"
+        anchor anchor name
+        ("<code class='code'><span class='keyword'>sig</span></code>" ^
+         " .. " ^
+         "<code class='code'><span class='keyword'>end</span></code>")
+    in
+    clear pre;
+    parse replacement |> children |> iter (append_child pre));
 
   (* Convert the soup back to HTML and write to STDOUT. The Makefile redirects
      that to the right output file. *)

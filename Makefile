@@ -73,7 +73,7 @@ docs : docs-postprocess
 	cp docs/style.css $(HTML)/
 	rm $(HTML)/index*.html
 	_build/docs/postprocess.native < $(HTML)/Soup.html > $(HTML)/index.html
-	rm $(HTML)/Soup.html $(HTML)/*R*html $(HTML)/type_Soup.html $(HTML)/*.stamp
+	rm $(HTML)/Soup*.html $(HTML)/type_Soup*.html $(HTML)/*.stamp
 	@echo "\nSee docs/html/index.html"
 
 .PHONY : docs-postprocess
