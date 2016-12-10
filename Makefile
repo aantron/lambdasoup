@@ -62,10 +62,11 @@ reverse-dependency-test :
 all-tests : uninstall install test performance-test reverse-dependency-test
 
 HTML := docs/html
+DOCFLAGS := -docflags -colorize-code
 
 .PHONY : docs
 docs : docs-postprocess
-	$(OCAMLBUILD) docs/soup.docdir/index.html
+	$(OCAMLBUILD) $(DOCFLAGS) docs/soup.docdir/index.html
 	rm -rf $(HTML)
 	mkdir -p $(HTML)
 	rsync -r _build/docs/soup.docdir/* $(HTML)/

@@ -2,11 +2,6 @@
 
 .keyword {
     font-weight: bold;
-    color: red;
-}
-
-.keywordsign {
-    color: #C04600;
 }
 
 .superscript {
@@ -17,27 +12,24 @@
     font-size: 4;
 }
 
+.string {
+    color: gray;
+}
+
 .comment {
-    color: green;
+    color: #0090E4;
+    font-style: oblique;
 }
 
 .constructor {
-    color: blue;
-}
-
-.type {
-    color: #5C6585;
-}
-
-.string {
-    color : maroon;
+    color: #114CA5;
 }
 
 /* Formatting. */
 
 .warning {
+    margin-right: 1ex;
     font-weight: bold;
-    color: red;
 }
 
 .info {
@@ -51,11 +43,7 @@
     margin-right: 3em;
 }
 
-.code {
-    color: #465F91;
-}
-
-.info pre {
+.info pre, pre.codepre {
     background-color: #f4f4f4;
     padding: 0.75em 1em;
 }
@@ -87,6 +75,19 @@ div.sig_block {
     margin-left: 2em;
 }
 
+table {
+    font: inherit;
+    border-spacing: 0;
+}
+
+td {
+    padding: 0;
+}
+
+td.module {
+    font-family: monospace;
+}
+
 /* General. */
 
 body {
@@ -98,13 +99,13 @@ body {
     margin: 0;
     margin-left: 20em;
     max-width: 50em;
+    background-color: #fefefe;
 }
 
 .toc {
     position: fixed;
     top: 3em;
     left: 1em;
-    background-color: white;
 }
 
 .toc p {
@@ -124,6 +125,18 @@ body {
 p {
     margin-top: 1.5em;
     margin-bottom: 1.5em;
+}
+
+ul {
+    margin-bottom: 1.5em;
+}
+
+p + ul {
+    margin-top: -1.5em;
+}
+
+.asynchronous pre + pre {
+    margin-top: 1.5em;
 }
 
 @media (max-width:980px) {
@@ -170,12 +183,26 @@ h2 {
     line-height: 1;
 }
 
+h3 {
+    font-size: 100%;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+}
+
 body > pre:first-of-type {
     margin-top: 1.5em;
 }
 
 .info {
     margin-bottom: 1.5em;
+}
+
+.info.top {
+    margin-bottom: 6em;
+}
+
+table .info {
+    margin-bottom: 0;
 }
 
 .multiline-member {
@@ -206,6 +233,23 @@ a.github {
     font-weight: bold;
 }
 
+h2:target,
+a:target {
+    background-color: yellow;
+}
+
+h2[id] > a,
+a[id] {
+    color: inherit;
+    outline: none;
+}
+
+h2[id] > a:hover,
+a[id]:hover {
+    background-color: yellow;
+    text-decoration: none;
+}
+
 /* Code. */
 
 pre {
@@ -213,5 +257,15 @@ pre {
     overflow: auto;
 }
 
-pre.verbatim, pre.codepre {
+pre.codepre br {
+    display: none;
+}
+
+/* Abuse of CSS for semantic structure. */
+
+body.index .top ul,
+body.index .top pre:first-of-type,
+body.index .top pre:nth-of-type(2) + p,
+body.index .top table + p {
+    margin-bottom: 3em;
 }

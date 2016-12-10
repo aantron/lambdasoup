@@ -24,10 +24,7 @@ let () =
      Replace them with their content. *)
   soup $$ "a:contains(\"..\")" |> iter unwrap;
   soup $ "a:contains(\"R\")" |> unwrap;
-
-  (* Add top text from top.html to the module description, that I don't want to
-     put in the .mli file. *)
-  read_file "top.html" |> parse |> insert_after (soup $ ".top");
+  soup $ "a:contains(\"Infix\")" |> unwrap;
 
   (* Add a footer to the body from footer.html. *)
   read_file "footer.html" |> parse |> append_child (soup $ "body");
@@ -119,16 +116,30 @@ let () =
     String.sub href 9 (String.length href - 9)
     |> fun v -> set_attribute "href" v a;
 
-    let text = a |> R.leaf_text in
+    let text = texts a |> String.concat "" in
     let starts_with_module =
       try String.sub text 0 5 = "Soup."
       with Invalid_argument _ -> false
     in
 
     if starts_with_module then
-      (String.sub text 5 (String.length text - 5)
-      |> create_text
-      |> replace (a |> R.child |> R.child)));
+      let value_name = String.sub text 5 (String.length text - 5) in
+      clear (R.child a);
+      create_text value_name |> append_child (a |> R.child_element));
+
+  (* Insert clickable anchors. *)
+  soup $$ "span[id]" |> iter (fun span ->
+    set_name "a" span;
+    set_attribute "href" ("#" ^ (R.attribute "id" span)) span);
+
+  soup $$ "h2[id]" |> iter (fun h2 ->
+    let href = "#" ^ (R.attribute "id" h2) in
+    let a =
+      create_element
+        ~attributes:["href", href] ~inner_text:(R.leaf_text h2) "a";
+    in
+    clear h2;
+    append_child h2 a);
 
   (* Convert the soup back to HTML and write to STDOUT. The Makefile redirects
      that to the right output file. *)
