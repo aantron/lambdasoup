@@ -64,8 +64,8 @@ let _ = ul |> previous_siblings |> elements in
     {{:https://github.com/aantron/lambda-soup/blob/master/LICENSE.md} BSD
     license}.
 
-    This documentation page is for version 0.6 of the library. Documentation for
-    other versions can be downloaded from the
+    This documentation page is for version 0.6.1 of the library. Documentation
+    for other versions can be downloaded from the
     {{:https://github.com/aantron/lambda-soup/releases} releases page}. *)
 
 
