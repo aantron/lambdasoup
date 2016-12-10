@@ -1,8 +1,6 @@
-# Lambda Soup &nbsp; [![version 0.6][version]][releases] [![Documentation][doc-img]][docs] [![BSD license][license-img]][license] [![Travis status][travis-img]][travis] [![Coverage][coveralls-img]][coveralls]
+# Lambda Soup &nbsp; [![version 0.6][version]][releases] [![Travis status][travis-img]][travis] [![Coverage][coveralls-img]][coveralls]
 
 [version]:     https://img.shields.io/badge/version-0.6-blue.svg
-[doc-img]:     https://img.shields.io/badge/docs-online-blue.svg
-[license-img]: https://img.shields.io/badge/license-BSD-blue.svg
 [travis]:      https://travis-ci.org/aantron/lambda-soup/branches
 [travis-img]:  https://img.shields.io/travis/aantron/lambda-soup/master.svg
 [coveralls]:     https://coveralls.io/github/aantron/lambda-soup?branch=master
@@ -102,16 +100,11 @@ GitHub, or send me an email at [antonbachin@yahoo.com][email]. If you find
 yourself repeatedly writing the same helper on top of Lambda Soup's functions,
 perhaps we should add it to Lambda Soup.
 
-## License
-
-Lambda Soup is distributed under the [BSD license][license].
-
 [docs]:         http://aantron.github.io/lambda-soup
 [postprocess]:  https://github.com/aantron/lambda-soup/blob/master/docs/postprocess.ml
 [tests]:        https://github.com/aantron/lambda-soup/blob/master/test/test.ml
 [contributing]: https://github.com/aantron/lambda-soup/blob/master/docs/CONTRIBUTING.md
 [email]:        mailto:antonbachin@yahoo.com
-[license]:      https://github.com/aantron/lambda-soup/blob/master/docs/LICENSE
 [releases]:     https://github.com/aantron/lambda-soup/releases
 [extracss]:     http://aantron.github.io/lambda-soup#VALselect
 [traversals]:   http://aantron.github.io/lambda-soup#2_Elementarytraversals

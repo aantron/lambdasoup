@@ -1,7 +1,3 @@
-Lambda Soup is distributed under the terms of the 2-clause BSD license. Its text
-is given below.
-
-
 Copyright (c) 2015, 2016, Anton Bachin
 All rights reserved.
 

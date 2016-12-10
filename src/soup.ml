@@ -1,5 +1,5 @@
-(* This file is part of Lambda Soup, released under the BSD 2-clause license.
-   See docs/LICENSE for details, or visit
+(* This file is part of Lambda Soup, released under the 2-clause BSD license.
+   See LICENSE.md for details, or visit
    https://github.com/aantron/lambda-soup. *)
 
 (* Shadowing/defining raise_notrace, to support pre-4.02 compilers. Still using

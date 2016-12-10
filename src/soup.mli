@@ -1,5 +1,5 @@
-(* This file is part of Lambda Soup, released under the BSD 2-clause license.
-   See docs/LICENSE for details, or visit
+(* This file is part of Lambda Soup, released under the 2-clause BSD license.
+   See LICENSE.md for details, or visit
    https://github.com/aantron/lambda-soup. *)
 
 (** Easy functional HTML scraping and manipulation.
@@ -61,7 +61,7 @@ let _ = ul |> previous_siblings |> elements in
 
     Lambda Soup is developed on {{:https://github.com/aantron/lambda-soup}
     GitHub} and distributed under the
-    {{:https://github.com/aantron/lambda-soup/blob/master/docs/LICENSE} BSD
+    {{:https://github.com/aantron/lambda-soup/blob/master/LICENSE.md} BSD
     license}.
 
     This documentation page is for version 0.6 of the library. Documentation for
