@@ -108,7 +108,6 @@ ocamlfind-uninstall :
 
 .PHONY : install
 install :
-	[ -f opam ] || ln -s src/opam
 	opam pin add . -y
 
 .PHONY : uninstall
@@ -119,4 +118,4 @@ uninstall :
 clean :
 	$(OCAMLBUILD) -clean
 	cd $(DEP_TEST_DIR) && $(OCAMLBUILD) -clean
-	rm -rf docs/html opam
+	rm -rf docs/html
