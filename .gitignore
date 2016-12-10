@@ -1,6 +1,6 @@
 scratch/
 _build/
 docs/html/
-
+docs/*.zip
 coverage/
 bisect*.out

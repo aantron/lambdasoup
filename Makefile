@@ -1,3 +1,6 @@
+LIB := lambdasoup
+VERSION := 0.6.1
+
 OCAML_VERSION := \
 	$(shell ocamlc -version | grep -E -o '^[0-9]+\.[0-9]+' | sed 's/\.//')
 
@@ -83,7 +86,7 @@ docs-postprocess :
 GHPAGES_REPO := scratch/docs-publish
 
 .PHONY : publish-docs
-publish-docs : docs
+publish-docs : check-doc-prereqs docs
 	@[ -d $(GHPAGES_REPO)/.git ] \
 		|| (echo "\nPlease create a repository in $(GHPAGES_REPO)"; exit 1)
 	cp $(HTML)/* $(GHPAGES_REPO)
@@ -91,6 +94,18 @@ publish-docs : docs
 		&& git add -A \
 		&& git commit --amend --reset-author -m "Lambda Soup documentation." \
 		&& git push -f
+
+DOC_ZIP := docs/$(LIB)-$(VERSION)-doc.zip
+
+.PHONY : package-docs
+package-docs : check-doc-prereqs docs
+	rm -f $(DOC_ZIP)
+	zip -9j $(DOC_ZIP) $(HTML)/*
+
+.PHONY : check-doc-prereqs
+check-doc-prereqs :
+	@test $(OCAML_VERSION) -ne 402 \
+		|| (echo "\nocamldoc is broken in 4.02" && false)
 
 INSTALL := \
 	_build/src/lambdasoup.cma _build/src/lambdasoup.cmxa \
@@ -119,3 +134,4 @@ clean :
 	$(OCAMLBUILD) -clean
 	cd $(DEP_TEST_DIR) && $(OCAMLBUILD) -clean
 	rm -rf docs/html
+	rm -f bisect*.out
