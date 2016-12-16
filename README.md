@@ -50,11 +50,15 @@ signals to Lambda Soup.
 [parse_xml]:    http://aantron.github.io/markup.ml/#VALparse_xml
 [from_signals]: http://aantron.github.io/lambda-soup/#2_Parsingsignals
 
+<br/>
+
 ## Installing
 
     opam install lambdasoup
 
 [contributing-install]: https://github.com/aantron/lambda-soup/blob/master/docs/CONTRIBUTING.md#developing
+
+<br/>
 
 ## Starting from scratch
 
@@ -81,17 +85,23 @@ let () =
 
 Then, run `ocaml -short-paths` to start the top-level, and scrape away!
 
+<br/>
+
 ## Depending
 
 Lambda Soup uses semantic versioning, but is currently in `0.x.x`. For now, the
 minor version number will be incremented on breaking changes. So, to give
 yourself a chance to review the changelog before your code breaks, put the
-following constraint on Lambda Soup: `soup {< "0.7.0"}`.
+following constraint on Lambda Soup: `lambdasoup {< "0.7.0"}`.
+
+<br/>
 
 ## Documentation
 
 Lambda Soup's interface consists of one module `Soup`, whose signature is
 documented [here][docs].
+
+<br/>
 
 ## Developing
 
