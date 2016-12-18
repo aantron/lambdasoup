@@ -879,6 +879,8 @@ let suites = [
       let body = page "list" |> parse $ "body" in
       let ul = body $ "ul" in
       let ol = body $ "ol" in
+      let ul_li = ul $ "li" in
+      let ol_li = ol $ "li" in
 
       swap ul ol;
 
@@ -886,7 +888,10 @@ let suites = [
         (body |> descendants |> elements |> to_list |> List.map name)
         ["ol"; "li"; "li"; "li"; "p"];
 
-      assert_equal (ul |> children |> elements |> count) 2);
+      assert_equal (ul |> children |> elements |> count) 2;
+
+      assert_equal (ul_li |> R.parent |> name) "ol";
+      assert_equal (ol_li |> R.parent |> name) "ul");
 
     ("wrap" >:: fun _ ->
       let body = page "list" |> parse $ "body" in

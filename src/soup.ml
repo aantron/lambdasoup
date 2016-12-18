@@ -1085,11 +1085,10 @@ let replace target node =
 
 let swap target element =
   let internal = "Soup.swap: internal error: non-element node given" in
-  delete element;
   let target_children = child_list target |> require_internal internal in
   let element_children = child_list element |> require_internal internal in
-  clear target;
-  clear element;
+  target_children |> List.iter (fun child -> child.parent <- Some element);
+  element_children |> List.iter (fun child -> child.parent <- Some target);
   mutate_child_list (fun _ -> element_children) target;
   mutate_child_list (fun _ -> target_children) element;
   replace target element
