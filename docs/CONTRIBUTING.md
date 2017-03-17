@@ -43,7 +43,7 @@ The library source is organized as follows:
 - `docs/`: files related to the `ocamldoc` documentation, such as extra HTML and
   the postprocessing script.
 
-Tu run tests, run `make all-tests`. This requires the `ounit` package. This
+To run tests, run `make all-tests`. This requires the `ounit` package. This
 takes some time, because it reinstalls Lambda Soup. If you want to run only the
 unit and performance tests, run `make test`.
 
