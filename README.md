@@ -80,7 +80,7 @@ let () =
   with Not_found -> ()
 ;;
 
-#use "topfind";;
+# use "topfind";;
 ```
 
 Then, run `ocaml -short-paths` to start the top-level, and scrape away!
