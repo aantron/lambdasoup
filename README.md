@@ -22,7 +22,7 @@ browser (and a few obvious [extensions][extracss] on top of that).
 Here is a trivial self-contained example:
 
 ```ocaml
-"<p class='Hello'>World!</p>" |> parse $ ".Hello" |> R.leaf_text;;
+(parse "<p class='Hello'>World!</p>") $ ".Hello" |> R.leaf_text;;
 - : string = "World!"
 ```
 

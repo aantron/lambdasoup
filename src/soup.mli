@@ -164,7 +164,7 @@ val require : 'a option -> 'a
 (** [require (Some v)] evaluates to [v], and [require None] raises [Failure]. *)
 
 (** For each function [Soup.f] that evaluates to an option, [Soup.R.f] is a
-    version of [f] that is post-composed with [require], so, for example, you
+    version of [f] that is post-composed with {!require}, so, for example, you
     can write [soup |> children |> R.first] instead of
     [soup |> children |> first |> require]. *)
 module R :
