@@ -1,32 +1,27 @@
-language: c
+language: generic
 
 env:
-  - PPA=avsm/ocaml312+opam12 SWITCH=system
-  - PPA=avsm/ocaml40+opam12 SWITCH=system
-  - PPA=avsm/ocaml41+opam12 SWITCH=system
-  - PPA=avsm/ocaml42+opam12 SWITCH=system
-  - PPA=avsm/ocaml42+opam12 SWITCH=4.03.0
-  - PPA=avsm/ocaml42+opam12 SWITCH=4.04.2
-  - PPA=avsm/ocaml42+opam12 SWITCH=4.05.0 DOCS=yes COVERAGE=yes
-  - PPA=avsm/ocaml42+opam12 SWITCH=4.06.0
+  - SWITCH=system
+  - SWITCH=4.03.0
+  - SWITCH=4.04.2
+  - SWITCH=4.05.0
+  - SWITCH=4.06.0
 
 before_script:
-  - sudo add-apt-repository -y ppa:$PPA
+  - set -e
+  - sudo add-apt-repository -y ppa:avsm/ocaml42+opam12
   - sudo apt-get update
   - sudo apt-get install ocaml-nox opam python-bs4
   - opam init -y --compiler $SWITCH
   - eval `opam config env`
-  - "[ -z $COVERAGE ] || opam install -y bisect_ppx ocveralls"
   - ocaml -version
 
 script:
-  - make install
-  - make reverse-dependency-test
+  - opam pin add -y --no-action lambdasoup .
+  - opam install -y --deps-only lambdasoup
   - opam install -y ounit
   - make test
   - make performance-test
-  - "[ -z $DOCS ] || make docs"
-  - "[ -z $COVERAGE ] || ocveralls --prefix _build bisect*.out --send"
 
 notifications:
   email:

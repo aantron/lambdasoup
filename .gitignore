@@ -1,6 +1,7 @@
 scratch/
 _build/
+*.install
+.merlin
 docs/html/
 docs/*.zip
-coverage/
-bisect*.out
+_coverage/

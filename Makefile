@@ -1,69 +1,41 @@
 LIB := lambdasoup
 VERSION := 0.6.1
 
-OCAML_VERSION := \
-	$(shell ocamlc -version | grep -E -o '^[0-9]+\.[0-9]+' | sed 's/\.//')
-
-ifeq ($(shell test $(OCAML_VERSION) -ge 402 && echo true),true)
-SAFE_STRING := ,-safe-string
-ifeq ($(shell ocamlfind query -qe -qo bisect_ppx && echo true),true)
-COVERAGE := yes
-COVERAGE_TAGS := \
-	-tag-line '<src/*>: package(bisect_ppx)' \
-	-tag-line '<test/*.native>: package(bisect_ppx)'
-COVERAGE_DIR := coverage
-endif
-endif
-
-ifeq ($(shell test $(OCAML_VERSION) -ge 400 && echo true),true)
-BIN_ANNOT := ,-bin-annot
-endif
-
-ifdef TRAVIS_COMMIT
-WERROR := ,-warn-error,+A-3
-endif
-
-CFLAGS := -cflags -w,+A$(BIN_ANNOT)$(SAFE_STRING)$(WERROR)
-
-OCAMLBUILD := ocamlbuild -use-ocamlfind -no-links
-DEP_TEST_DIR := test/dependency
-
 .PHONY : build
 build :
-	$(OCAMLBUILD) $(CFLAGS) lambdasoup.cma lambdasoup.cmxa
-
-BS4_MISSING := Beautiful Soup not installed. Skipping Python performance test.
+	jbuilder build --dev
 
 .PHONY : test
 test :
-	@rm -f bisect*.out
-	$(OCAMLBUILD) $(COVERAGE_TAGS) $(CFLAGS) test.native --
-	@if [ "$(COVERAGE)" = yes ] ; then \
-		bisect-ppx-report -I _build -html $(COVERAGE_DIR) bisect*.out ; \
-		echo ; \
-		bisect-ppx-report -text - -summary-only bisect*.out \
-			| sed 's/Summary/Coverage/' ; \
-		echo "See $(COVERAGE_DIR)/index.html for coverage report" ; \
-	fi
+	jbuilder runtest --dev --no-buffer -j 1
+
+BISECT_FILES_PATTERN := _build/default/test/bisect*.out
+COVERAGE_DIR := _coverage
+
+.PHONY : coverage
+coverage :
+	BISECT_ENABLE=yes jbuilder build --dev @build-test
+	rm -rf $(BISECT_FILES_PATTERN)
+	(cd _build/default/test && ./test.exe)
+	bisect-ppx-report \
+	  -I _build/default/ -html $(COVERAGE_DIR)/ \
+	  -text - -summary-only \
+	  $(BISECT_FILES_PATTERN)
+	@echo See $(COVERAGE_DIR)/index.html
+
+BS4_MISSING := Beautiful Soup not installed. Skipping Python performance test.
 
 .PHONY : performance-test
 performance-test :
-	$(OCAMLBUILD) $(CFLAGS) performance.native --
-	$(OCAMLBUILD) $(CFLAGS) performance.byte --
+	jbuilder build --dev @build-performance-test
+	(cd _build/default/test/performance && ./performance.exe)
 	@((python -c "import bs4" 2> /dev/null \
-		|| (echo $(BS4_MISSING); exit 1)) \
-		&& (echo python test/performance.py; python test/performance.py)) \
-		|| exit 0
+	  || (echo $(BS4_MISSING); exit 1)) \
+	  && (echo python test/performance/performance.py; \
+	           python test/performance/performance.py)) \
+	  || exit 0
 
-.PHONY : reverse-dependency-test
-reverse-dependency-test :
-	cd $(DEP_TEST_DIR) && \
-		$(OCAMLBUILD) -clean && \
-		$(OCAMLBUILD) $(CFLAGS) dependency.native --
-
-.PHONY : all-tests
-all-tests : uninstall install test performance-test reverse-dependency-test
-
+# The docs targets are inactive for the time being.
 HTML := docs/html
 DOCFLAGS := -docflags -colorize-code
 
@@ -98,40 +70,12 @@ publish-docs : check-doc-prereqs docs
 DOC_ZIP := docs/$(LIB)-$(VERSION)-doc.zip
 
 .PHONY : package-docs
-package-docs : check-doc-prereqs docs
+package-docs : docs
 	rm -f $(DOC_ZIP)
 	zip -9j $(DOC_ZIP) $(HTML)/*
 
-.PHONY : check-doc-prereqs
-check-doc-prereqs :
-	@test $(OCAML_VERSION) -ne 402 \
-		|| (echo "\nocamldoc is broken in 4.02" && false)
-
-INSTALL := \
-	_build/src/lambdasoup.cma _build/src/lambdasoup.cmxa \
-	_build/src/lambdasoup.a _build/src/soup.cmi _build/src/soup.mli \
-	_build/src/soup.cmti _build/src/soup.cmt _build/src/soup.cmx
-PACKAGE := lambdasoup
-
-.PHONY : ocamlfind-install
-ocamlfind-install :
-	ocamlfind install $(PACKAGE) -optional src/META $(INSTALL)
-
-.PHONY : ocamlfind-uninstall
-ocamlfind-uninstall :
-	ocamlfind remove $(PACKAGE)
-
-.PHONY : install
-install :
-	opam pin add . -y
-
-.PHONY : uninstall
-uninstall :
-	opam pin remove $(PACKAGE) -y
-
 .PHONY : clean
 clean :
-	$(OCAMLBUILD) -clean
-	cd $(DEP_TEST_DIR) && $(OCAMLBUILD) -clean
-	rm -rf docs/html
-	rm -f bisect*.out
+	jbuilder clean
+	rm -rf $(COVERAGE_DIR)
+	# rm -rf docs/html

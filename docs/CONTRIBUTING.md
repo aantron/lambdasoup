@@ -43,15 +43,9 @@ The library source is organized as follows:
 - `docs/`: files related to the `ocamldoc` documentation, such as extra HTML and
   the postprocessing script.
 
-To run tests, run `make all-tests`. This requires the `ounit` package. This
-takes some time, because it reinstalls Lambda Soup. If you want to run only the
-unit and performance tests, run `make test`.
+To run tests, run `make test`. This requires the `ounit` package.
 
 To generate docs, run `make docs`.
-
-To install the library from your repo clone, run `make install`. This uses OPAM
-to pin the repository and install a `lambdasoup` package. To undo this, run
-`make uninstall`.
 
 Make a branch off master, make your changes, rebase over master (if you have to)
 when done, and submit a pull request :)

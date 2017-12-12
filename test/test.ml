@@ -11,7 +11,7 @@ let map_option f = function
 let page : string -> string =
   let table = Hashtbl.create 7 in
 
-  let directory = "test/pages" in
+  let directory = "pages" in
   Sys.readdir directory
   |> Array.iter (fun file ->
     let contents = file |> Filename.concat directory |> read_file in
@@ -1053,7 +1053,7 @@ let suites = [
         "p");
 
     ("read_channel" >:: fun _ ->
-      let channel = open_in "test/pages/list.html" in
+      let channel = open_in "pages/list.html" in
       let contents = read_channel channel in
       close_in channel;
 

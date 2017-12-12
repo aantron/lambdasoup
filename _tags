@@ -1,7 +1,0 @@
-<*>: -traverse
-<src> or <test> or <docs>: include, traverse
-<test/dependency>: -include, -traverse
-
-<src/*> or <test/**> or <docs/*>: package(markup)
-<test/test.*>: package(oUnit)
-<test/performance.*>: package(unix)
