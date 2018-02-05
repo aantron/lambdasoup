@@ -64,7 +64,7 @@ let _ = ul |> previous_siblings |> elements in
     {{:https://github.com/aantron/lambda-soup/blob/master/LICENSE.md} BSD
     license}.
 
-    This documentation page is for version 0.6.1 of the library. Documentation
+    This documentation page is for version 0.6.2 of the library. Documentation
     for other versions can be downloaded from the
     {{:https://github.com/aantron/lambda-soup/releases} releases page}. *)
 
@@ -273,7 +273,7 @@ val leaf_text : (_ node) -> string option
       one child [child] remaining, it evaluates to [leaf_text child]. If there
       are no children remaining, it evaluates to [Some ""]. If there are two or
       more children remaining, it evaluates to [None].
-    
+
     Here are some examples of what [leaf_text] produces for various nodes:
 
 {[
