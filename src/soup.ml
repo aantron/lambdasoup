@@ -486,7 +486,7 @@ struct
     | AdjacentSibling
     | IndirectSibling
 
-  type t = (combinator * simple_selector list) list
+  type t = (combinator * simple_selector list) list list
 
   let has_prefix prefix s = String.sub s 0 (String.length prefix) = prefix
 
@@ -608,10 +608,10 @@ struct
       with_stop (fun stop ->
         sequence.eliminate (fun v node -> f v node |> stop.throw) init)}
 
-  let select root_node selector =
+  let select root_node selectors =
     let root_node = forget_type root_node in
 
-    let matches_selector at_node =
+    let matches_selector at_node selector =
       with_stop (fun stop ->
         let rec backwards_traversal at_node = function
           | [] -> if at_node == root_node then stop.throw true else ()
@@ -636,6 +636,18 @@ struct
         false)
     in
 
+    let matches_selectors at_node =
+      with_stop (fun stop ->
+        let rec loop = function
+          | [] -> ()
+          | selector::rest ->
+            if (matches_selector at_node selector) then stop.throw true
+            else loop rest
+        in
+        loop selectors;
+        false)
+    in
+
     let candidates =
       match simple_parent root_node with
       | None -> descendants root_node
@@ -644,7 +656,7 @@ struct
 
     candidates
     |> elements
-    |> filter matches_selector
+    |> filter matches_selectors
 
   let is_numeric_char c =
     ((Char.code c) >= (Char.code '0')) && ((Char.code c) <= (Char.code '9'))
@@ -893,12 +905,12 @@ struct
     in
     loop [first]
 
-  let parse s =
-    let stream = Stream.of_string s in
+  let parse_selector_list stream =
     let rec loop selectors =
       consume_whitespace stream;
       match Stream.peek stream with
       | None -> List.rev selectors
+      | Some ',' -> Stream.junk stream; List.rev selectors
       | _ ->
         let combinator =
           match Stream.peek stream with
@@ -909,6 +921,17 @@ struct
         in
         consume_whitespace stream;
         (combinator, parse_simple_selector_list stream)::selectors |> loop
+    in
+    loop []
+
+  let parse s =
+    let stream = Stream.of_string s in
+    let rec loop selectors =
+      consume_whitespace stream;
+      match Stream.peek stream with
+      | None -> List.rev selectors
+      | _ ->
+        parse_selector_list stream::selectors |> loop
     in
     loop []
 end
