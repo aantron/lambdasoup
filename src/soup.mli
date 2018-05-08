@@ -592,9 +592,15 @@ val clear : (_ node) -> unit
 (** Unlinks all children of the given node. *)
 
 val replace : (_ node) -> (_ node) -> unit
-(** [replace node node'] replaces [node] with [node'] in [node]'s parent's child
-    list. All descendants of [node] are implicitly deleted by this operation,
-    because they become unreachable from [node]'s parent. *)
+(** [replace target other] mutably replaces [target] with [other]. [target] and
+    [other] are both deleted from their respective document trees. Then, [other]
+    is inserted where [target] used to be in its document tree.
+
+    Note that you cannot replace multiple targets with [other]: [replace] will
+    work as expected for the first target, but for the second target, it will
+    {e remove} [other] from where the first target was, and insert it where the
+    second target is. To replace multiple targets, you need multiple copies of
+    [other]. *)
 
 val swap : element node -> element node -> unit
 (** [swap element element'] replaces [element] with [element'] in [element]'s
