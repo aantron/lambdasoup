@@ -94,6 +94,8 @@ let forget_type : (_ node) -> (_ node) =
       "Soup._forget_type: internal error: node's self reference not set"
       n.self
 
+let coerce node = forget_type node
+
 let create_element name attributes children =
   let values = {name; attributes; children} in
   let node = {self = None; parent = None; values = `Element values} in

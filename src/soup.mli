@@ -241,6 +241,9 @@ val fold_attributes : ('a -> string -> string -> 'a) -> 'a -> element node -> 'a
     values of the attributes of [element]. The first [string] argument to [f] is
     the attribute name, and the second is the value. *)
 
+val coerce : (_ node) -> general node
+(** [coerce node] evaluates to [node], but with type [general node]. *)
+
 val element : (_ node) -> element node option
 (** Given any node, asserts that it is an element [e]. If so, evaluates to
     [Some e]. Otherwise, evaluates to [None]. *)

@@ -332,6 +332,7 @@ let suites = [
 
       assert_bool "is_element" (is_element item);
       assert_bool "element" (element item <> None);
+      assert_bool "coerce" (Obj.magic item == coerce item);
 
       let item_text = item |> children |> R.first in
 
