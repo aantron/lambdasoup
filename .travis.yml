@@ -6,6 +6,7 @@ env:
   - SWITCH=4.04.2
   - SWITCH=4.05.0
   - SWITCH=4.06.1
+  - SWITCH=4.07.0
 
 before_script:
   - set -e
