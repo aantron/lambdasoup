@@ -922,7 +922,10 @@ let select_one selector node = select selector node |> first
 
 let ($) node selector =
   node |> select_one selector
-  |> require_internal (Printf.sprintf "Soup.($): cannot select '%s'" selector)
+  |> require_internal
+    (Printf.sprintf "Soup.($): '%s' not found.\n%s"
+      selector
+      "Try Soup.($?) if you'd prefer returning None instead of an exception.")
 
 let ($?) node selector = node |> select_one selector
 
