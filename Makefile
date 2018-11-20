@@ -3,18 +3,18 @@ VERSION := 0.6.2
 
 .PHONY : build
 build :
-	jbuilder build --dev
+	dune build
 
 .PHONY : test
 test :
-	jbuilder runtest --dev --no-buffer -j 1
+	dune runtest --no-buffer -j 1
 
 BISECT_FILES_PATTERN := _build/default/test/bisect*.out
 COVERAGE_DIR := _coverage
 
 .PHONY : coverage
 coverage :
-	BISECT_ENABLE=yes jbuilder build --dev @build-test
+	BISECT_ENABLE=yes dune build @build-test
 	rm -rf $(BISECT_FILES_PATTERN)
 	(cd _build/default/test && ./test.exe)
 	bisect-ppx-report \
@@ -27,7 +27,7 @@ BS4_MISSING := Beautiful Soup not installed. Skipping Python performance test.
 
 .PHONY : performance-test
 performance-test :
-	jbuilder build --dev @build-performance-test
+	dune build @build-performance-test
 	(cd _build/default/test/performance && ./performance.exe)
 	@((python -c "import bs4" 2> /dev/null \
 	  || (echo $(BS4_MISSING); exit 1)) \
@@ -76,6 +76,6 @@ package-docs : docs
 
 .PHONY : clean
 clean :
-	jbuilder clean
+	dune clean
 	rm -rf $(COVERAGE_DIR)
 	# rm -rf docs/html
