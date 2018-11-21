@@ -50,7 +50,7 @@ To generate docs, run `make docs`.
 Make a branch off master, make your changes, rebase over master (if you have to)
 when done, and submit a pull request :)
 
-[repo]:        https://github.com/aantron/lambda-soup
+[repo]:        https://github.com/aantron/lambdasoup
 [email]:       mailto:antonbachin@yahoo.com
-[convenience]: http://aantron.github.io/lambda-soup#2_Convenience
+[convenience]: http://aantron.github.io/lambdasoup#2_Convenience
 [nethtml]:     http://ocamlnet.sourceforge.net/refman/Nethtml.html

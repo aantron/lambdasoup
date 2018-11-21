@@ -1,17 +1,17 @@
 # Lambda Soup &nbsp; [![version 0.6.3][version]][releases] [![Travis status][travis-img]][travis] [![Coverage][coveralls-img]][coveralls]
 
 [version]:     https://img.shields.io/badge/version-0.6.3-blue.svg
-[travis]:      https://travis-ci.org/aantron/lambda-soup/branches
-[travis-img]:  https://img.shields.io/travis/aantron/lambda-soup/master.svg
-[coveralls]:     https://coveralls.io/github/aantron/lambda-soup?branch=master
-[coveralls-img]: https://img.shields.io/coveralls/aantron/lambda-soup/master.svg
+[travis]:      https://travis-ci.org/aantron/lambdasoup/branches
+[travis-img]:  https://img.shields.io/travis/aantron/lambdasoup/master.svg
+[coveralls]:     https://coveralls.io/github/aantron/lambdasoup?branch=master
+[coveralls-img]: https://img.shields.io/coveralls/aantron/lambdasoup/master.svg
 
 Lambda Soup is a functional HTML scraping and manipulation library for OCaml
 aimed at being easy to use.
 
 ![Lambda Soup usage example][sample]
 
-[sample]: https://raw.githubusercontent.com/aantron/lambda-soup/master/docs/sample.gif
+[sample]: https://raw.githubusercontent.com/aantron/lambdasoup/master/docs/sample.gif
 
 Lambda Soup is *simple*. It provides a set of
 [elementary traversals][traversals] for getting from node to node, familiar
@@ -48,7 +48,7 @@ everything to UTF-8. And, you can use Lambda Soup on XML, by
 signals to Lambda Soup.
 
 [parse_xml]:    http://aantron.github.io/markup.ml/#VALparse_xml
-[from_signals]: http://aantron.github.io/lambda-soup/#2_Parsingsignals
+[from_signals]: http://aantron.github.io/lambdasoup/#2_Parsingsignals
 
 <br/>
 
@@ -56,7 +56,7 @@ signals to Lambda Soup.
 
     opam install lambdasoup
 
-[contributing-install]: https://github.com/aantron/lambda-soup/blob/master/docs/CONTRIBUTING.md#developing
+[contributing-install]: https://github.com/aantron/lambdasoup/blob/master/docs/CONTRIBUTING.md#developing
 
 <br/>
 
@@ -110,13 +110,13 @@ GitHub, or send me an email at [antonbachin@yahoo.com][email]. If you find
 yourself repeatedly writing the same helper on top of Lambda Soup's functions,
 perhaps we should add it to Lambda Soup.
 
-[docs]:         http://aantron.github.io/lambda-soup
-[postprocess]:  https://github.com/aantron/lambda-soup/blob/master/docs/postprocess.ml
-[tests]:        https://github.com/aantron/lambda-soup/blob/master/test/test.ml
-[contributing]: https://github.com/aantron/lambda-soup/blob/master/docs/CONTRIBUTING.md
+[docs]:         http://aantron.github.io/lambdasoup
+[postprocess]:  https://github.com/aantron/lambdasoup/blob/master/docs/postprocess.ml
+[tests]:        https://github.com/aantron/lambdasoup/blob/master/test/test.ml
+[contributing]: https://github.com/aantron/lambdasoup/blob/master/docs/CONTRIBUTING.md
 [email]:        mailto:antonbachin@yahoo.com
-[releases]:     https://github.com/aantron/lambda-soup/releases
-[extracss]:     http://aantron.github.io/lambda-soup#VALselect
-[traversals]:   http://aantron.github.io/lambda-soup#2_Elementarytraversals
-[combinators]:  http://aantron.github.io/lambda-soup#2_Combinators
+[releases]:     https://github.com/aantron/lambdasoup/releases
+[extracss]:     http://aantron.github.io/lambdasoup#VALselect
+[traversals]:   http://aantron.github.io/lambdasoup#2_Elementarytraversals
+[combinators]:  http://aantron.github.io/lambdasoup#2_Combinators
 [markupml]:     https://github.com/aantron/markup.ml

@@ -20,7 +20,7 @@ let page : string -> string =
   fun page_name -> Hashtbl.find table (page_name ^ ".html")
 
 let suites = [
-  "lambda-soup" >::: [
+  "lambdasoup" >::: [
     ("normal_return" >:: fun _ ->
       assert_equal (with_stop (fun _ -> 0)) 0;
       assert_equal (with_stop (fun _ -> "a")) "a");

@@ -70,7 +70,7 @@ let () =
 
     (* Add the GitHub link at the bottom of the table of contents. *)
     create_element
-      ~attributes:["href", "https://github.com/aantron/lambda-soup"]
+      ~attributes:["href", "https://github.com/aantron/lambdasoup"]
       ~classes:["github"; "hide-narrow"] ~inner_text:"GitHub"
       "a"
     |> append_child div;
