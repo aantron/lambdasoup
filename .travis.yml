@@ -25,6 +25,7 @@ script:
   - opam install -y ounit
   - make test
   - make performance-test
+  - opam lint
 
 notifications:
   email:
