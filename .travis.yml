@@ -27,6 +27,11 @@ script:
   - make performance-test
   - opam lint
 
+cache:
+  directories:
+    - $HOME/.opam
+    - ./_build/default
+
 notifications:
   email:
     recipients:
