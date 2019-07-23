@@ -50,7 +50,7 @@ struct
   (* Convert multiple deprecation warnings into one warning. This function can
      be removed from the module if/when Lambda Soup supports only
      OCaml >= 4.03. *)
-  let lowercase_ascii = lowercase
+  let lowercase_ascii = lowercase [@ocaml.warning "-3"]
 end
 
 module Char =
@@ -58,7 +58,7 @@ struct
   include Char
 
   (* See comment by String.lowercase_ascii above. *)
-  let lowercase_ascii = lowercase
+  let lowercase_ascii = lowercase [@ocaml.warning "-3"]
 end
 
 type element = unit
@@ -962,9 +962,11 @@ let signals root =
   |> Markup.of_list
 
 let pretty_print root =
-  signals root |> Markup.pretty_print |> Markup.write_html |> Markup.to_string
+  signals root
+  |> Markup.pretty_print |> (fun s -> Markup.write_html s) |> Markup.to_string
 
-let to_string root = signals root |> Markup.write_html |> Markup.to_string
+let to_string root =
+  signals root |> (fun s -> Markup.write_html s) |> Markup.to_string
 
 let rec equal_general normalize_children n n' =
   let equal_text s s' = s = s' in
