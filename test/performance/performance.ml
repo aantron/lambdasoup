@@ -1,6 +1,3 @@
-(* For pre-4.01 distributions of OCaml. *)
-let (|>) x f = f x
-
 let measure runs name f =
   let rec run = function
     | 0 -> ()

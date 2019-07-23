@@ -1,9 +1,5 @@
 open Soup
 
-(* For pre-4.01 distributions of OCaml. This definition is not necessary with
-   current versions. *)
-let (|>) x f = f x
-
 let fmt = Printf.sprintf
 
 let read_file =

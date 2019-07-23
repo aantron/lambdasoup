@@ -1,24 +1,6 @@
 (* This file is part of Lambda Soup, released under the MIT license. See
    LICENSE.md for details, or visit https://github.com/aantron/lambdasoup. *)
 
-(* Shadowing/defining raise_notrace, to support pre-4.02 compilers. Still using
-   the identifier raise_notrace in the code below, so this definition can simply
-   be removed if/when support for pre-4.02 compilers is dropped, and the code
-   will use the real raise_notrace. *)
-let raise_notrace = raise
-
-(* Shadowing/defining |>, in a similar way to raise_notrace. This is for
-   pre-4.01 compilers. *)
-let (|>) x f = f x
-
-(* Same as above. For pre-4.00. *)
-module List =
-struct
-  include List
-
-  let iteri f l = List.fold_left (fun i v -> f i v; i + 1) 0 l |> ignore
-end
-
 module String =
 struct
   include String

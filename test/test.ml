@@ -1,9 +1,6 @@
 open OUnit2
 open Soup
 
-(* For pre-4.01 distributions of OCaml. *)
-let (|>) x f = f x
-
 let map_option f = function
   | None -> None
   | Some v -> Some (f v)
