@@ -3,7 +3,7 @@ opam-version: "2.0"
 synopsis: "Easy functional HTML scraping and manipulation with CSS selectors"
 
 version: "dev"
-license: "BSD"
+license: "MIT"
 homepage: "https://github.com/aantron/lambdasoup"
 doc: "https://aantron.github.io/lambdasoup"
 bug-reports: "https://github.com/aantron/lambdasoup/issues"

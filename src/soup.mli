@@ -1,6 +1,5 @@
-(* This file is part of Lambda Soup, released under the 2-clause BSD license.
-   See LICENSE.md for details, or visit
-   https://github.com/aantron/lambdasoup. *)
+(* This file is part of Lambda Soup, released under the MIT license. See
+   LICENSE.md for details, or visit https://github.com/aantron/lambdasoup. *)
 
 (** Easy functional HTML scraping and manipulation.
 
