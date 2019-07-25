@@ -50,6 +50,9 @@ let suites = [
       test "li" 5;
       test "ul li" 3;
       test "ol li" 2;
+      test "ol\nli" 2;
+      test "ol\r\nli" 2;
+      test "ol\tli" 2;
       test "body li" 5;
       test "body > li" 0;
       test "body > *" 3;
@@ -68,6 +71,7 @@ let suites = [
       test "#one" 1;
       test "li#one" 1;
       test "ul#one" 0;
+      test "ul#one_1" 0;
       test "li[class~=odd]" 3;
       test "li[id^=t]" 2;
       test "li[id$=e]" 3;
@@ -90,6 +94,7 @@ let suites = [
       test "ul li:nth-child(2n)" 1;
       test "ul li:nth-child(2n)#two" 1;
       test "ul li:nth-child(2n+1)" 2;
+      test "ul li:nth-child(2n-1)" 2;
       test "ul li:nth-child(2n+1)#one" 1;
       test "ul li:nth-child(2n+1)#three" 1;
       test "ul li:nth-child(2n+1)#two" 0;
@@ -145,7 +150,8 @@ let suites = [
       test "[id=\"dquotes\"]" 0;
       test "[id=\"\\\"dquotes\\\"\"]" 1;
       test "[id=\"simple'quote\"]" 1;
-      test "[id='simple\\'quote']" 1);
+      test "[id='simple\\'quote']" 1;
+      test "[id='back\\slash']" 1);
 
     ("parse-fail-quoted" >:: fun _ ->
       let soup = page "quoted" |> parse in
@@ -205,6 +211,7 @@ let suites = [
       test ":nth-child(n" "unterminated '('";
       test ":nth-child(o)" "expected 'n', 'even', or 'odd'";
       test ":nth-child(m)" "expected expression";
+      test ":nth-child(2n+" "expected number after '+' or '-'";
       test ":contains(foo)" "expected quoted string";
       test ":contains(" "expected quoted string";
       test "[foo|]" "expected attribute operator";

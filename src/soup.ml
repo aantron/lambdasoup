@@ -350,7 +350,7 @@ let index_of_element element =
       |> elements
       |> fold (fun index element' ->
         if element' == element then stop.throw index else index + 1) 1
-      |> ignore;
+      |> ignore; (*BISECT-IGNORE*)
       failwith (*BISECT-IGNORE*)
         ("Soup.index_of_element: internal error: " ^
         "element is not a child of its own parent"))
@@ -515,12 +515,12 @@ struct
 
   let element_count node =
     match simple_parent node with
-    | None -> 1
+    | None -> 1 (*BISECT-IGNORE*)
     | Some parent -> parent |> children |> elements |> count
 
   let element_count_with_name name' node =
     match simple_parent node with
-    | None -> 1
+    | None -> 1 (*BISECT-IGNORE*)
     | Some parent ->
       parent
       |> children
@@ -530,7 +530,7 @@ struct
 
   let element_index_with_name name' node =
     match simple_parent node with
-    | None -> 1
+    | None -> 1 (*BISECT-IGNORE*)
     | Some parent ->
       with_stop (fun stop ->
         flush stdout;
@@ -541,7 +541,7 @@ struct
         |> fold (fun index element ->
           if element == node then stop.throw index else index + 1)
           1
-        |> ignore;
+        |> ignore; (*BISECT-IGNORE*)
         failwith (*BISECT-IGNORE*)
           ("Soup.Selector.element_index_with_name: internal error: " ^
            "parent does not have given child"))
@@ -640,9 +640,8 @@ struct
   let is_whitespace_char c =
     c = ' ' || c = '\t' || c = '\n' || c = '\r'
 
-  let is_selector_start_char c =
-    (is_identifier_char c) || (c == '.') || (c == '#') || (c == '[') ||
-    (c == ':')
+  let is_continuation_simple_selector_start_char c =
+    (c == '.') || (c == '#') || (c == '[') || (c == ':')
 
   let parse_identifier stream =
     let buffer = Buffer.create 32 in
@@ -781,7 +780,6 @@ struct
     in
     loop () |> int_of_string
 
-  (* TODO The b + a in this function is not really correct... *)
   let parse_modular_pattern_tail a stream =
     Stream.junk stream;
     match Stream.peek stream with
@@ -790,7 +788,11 @@ struct
       (match Stream.peek stream with
       | Some c' when is_numeric_char c' ->
         let b = parse_number stream in
-        if c = '+' then a, b else a, b + a
+        let b =
+          if c = '+' then b mod a
+          else a - (b mod a)
+        in
+        a, b
       | _ -> failwith "Soup.Selector.parse: expected number after '+' or '-'")
     | _ -> a, 0
 
@@ -870,7 +872,7 @@ struct
     let first = parse_simple_selector stream in
     let rec loop selectors =
       match Stream.peek stream with
-      | Some c when is_selector_start_char c ->
+      | Some c when is_continuation_simple_selector_start_char c ->
         (parse_simple_selector stream)::selectors |> loop
       | _ -> List.rev selectors
     in
@@ -1226,4 +1228,5 @@ let read_file path = Markup.file path |> fst |> Markup.to_string
 
 let write_channel = output_string
 
-let write_file path data = Markup.string data |> Markup.to_file path
+let write_file path data =
+  Markup.string data |> Markup.to_file path (*BISECT-IGNORE*)
