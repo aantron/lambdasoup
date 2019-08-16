@@ -1,13 +1,13 @@
 language: generic
 
 env:
+  - SWITCH=4.08.1 COVERAGE=yes
   - SWITCH=4.02.3
   - SWITCH=4.03.0
   - SWITCH=4.04.2
   - SWITCH=4.05.0
   - SWITCH=4.06.1
   - SWITCH=4.07.1
-  - SWITCH=4.08.1
 
 before_script:
   - set -e
@@ -24,6 +24,9 @@ script:
   - opam install -y --deps-only lambdasoup
   - opam install -y ounit
   - make test
+  - "[ -z $COVERAGE ] || make clean coverage"
+  - "[ -z $COVERAGE ] || bisect-ppx-report -I _build/default/ --coveralls coverage.json --service-name travis-ci --service-job-id $TRAVIS_JOB_ID `find . -name 'bisect*.out'`"
+  - "[ -z $COVERAGE ] || curl -L -F json_file=@./coverage.json https://coveralls.io/api/v1/jobs"
   - make performance-test
   - opam lint
 
