@@ -4,5 +4,5 @@
  (synopsis "Easy functional HTML scraping and manipulation")
  (wrapped false)
  (flags (:standard -w +A -warn-error -3))
- (preprocess (pps bisect_ppx -conditional))
+ (preprocess (pps bisect_ppx --conditional))
  (libraries markup))

@@ -149,19 +149,20 @@ let with_stop f =
   try f stop
   with Stop id' when id' = id ->
     match !result with
-    | None -> (*BISECT-IGNORE*)
-      failwith "Soup.with_stop: internal error: !result = None"
+    | None ->
+      failwith "Soup.with_stop: internal error: !result = None" [@coverage off]
     | Some v -> v
 
 let name = function
   | {values = `Element {name; _}; _} -> String.lowercase_ascii name
-  | _ -> failwith "Soup.name: internal error: not an element" (*BISECT-IGNORE*)
+  | _ -> failwith "Soup.name: internal error: not an element" [@coverage off]
 
 let fold_attributes f init = function
   | {values = `Element {attributes; _}; _} ->
     attributes |> List.fold_left (fun v (name, value) -> f v name value) init
-  | _ -> (*BISECT-IGNORE*)
+  | _ ->
     failwith "Soup.fold_attributes: internal error: not an element"
+      [@coverage off]
 
 let attribute name node =
   with_stop (fun stop ->
@@ -295,10 +296,10 @@ let siblings node =
 
 let split_at_identity function_name v l =
   let rec loop prefix = function
-    | [] -> (*BISECT-IGNORE*)
+    | [] ->
       failwith
         ("Soup." ^ function_name ^
-         ": internal error: child not in parent's child list")
+         ": internal error: child not in parent's child list") [@coverage off]
     | u::suffix ->
       if u == v then prefix, suffix else loop (u::prefix) suffix
   in
@@ -309,9 +310,10 @@ let sibling_lists function_name select node =
   | None -> empty
   | Some parent ->
     match child_list parent with
-    | None -> (*BISECT-IGNORE*)
+    | None ->
       failwith
         ("Soup." ^ function_name ^ ": internal error: parent has no children")
+          [@coverage off]
     | Some children ->
       let lists =
         split_at_identity function_name (forget_type node) children in
@@ -331,14 +333,16 @@ let index_of node =
   | None -> 1
   | Some parent ->
     match child_list parent with
-    | None -> (*BISECT-IGNORE*)
+    | None ->
       failwith "Soup.index_of: internal error: parent has no children"
+        [@coverage off]
     | Some children ->
       with_stop (fun stop ->
         children |> List.iteri (fun index child ->
           if child == (forget_type node) then stop.throw (index + 1));
-        failwith (*BISECT-IGNORE*)
+        failwith
           "Soup.index_of: internal error: child not in parent's child list")
+            [@coverage off]
 
 let index_of_element element =
   match simple_parent element with
@@ -350,8 +354,8 @@ let index_of_element element =
       |> elements
       |> fold (fun index element' ->
         if element' == element then stop.throw index else index + 1) 1
-      |> ignore; (*BISECT-IGNORE*)
-      failwith (*BISECT-IGNORE*)
+      |> ignore;
+      failwith
         ("Soup.index_of_element: internal error: " ^
         "element is not a child of its own parent"))
 
@@ -515,12 +519,12 @@ struct
 
   let element_count node =
     match simple_parent node with
-    | None -> 1 (*BISECT-IGNORE*)
+    | None -> 1 [@coverage off]
     | Some parent -> parent |> children |> elements |> count
 
   let element_count_with_name name' node =
     match simple_parent node with
-    | None -> 1 (*BISECT-IGNORE*)
+    | None -> 1 [@coverage off]
     | Some parent ->
       parent
       |> children
@@ -530,7 +534,7 @@ struct
 
   let element_index_with_name name' node =
     match simple_parent node with
-    | None -> 1 (*BISECT-IGNORE*)
+    | None -> 1 [@coverage off]
     | Some parent ->
       with_stop (fun stop ->
         flush stdout;
@@ -541,8 +545,8 @@ struct
         |> fold (fun index element ->
           if element == node then stop.throw index else index + 1)
           1
-        |> ignore; (*BISECT-IGNORE*)
-        failwith (*BISECT-IGNORE*)
+        |> ignore;
+        failwith
           ("Soup.Selector.element_index_with_name: internal error: " ^
            "parent does not have given child"))
 
@@ -1111,15 +1115,16 @@ let append_root document node =
 let set_name new_name = function
   | {values = `Element e; _} ->
     e.name <- new_name |> String.trim |> String.lowercase_ascii
-  | _ -> (*BISECT-IGNORE*)
-    failwith "Soup.set_name: internal error: not an element"
+  | _ ->
+    failwith "Soup.set_name: internal error: not an element" [@coverage off]
 
 let delete_attribute name = function
   | {values = `Element e; _} ->
     e.attributes <-
       e.attributes |> List.filter (fun (name', _) -> name' <> name)
-  | _ -> (*BISECT-IGNORE*)
+  | _ ->
     failwith "Soup.delete_attribute: internal error: not an element"
+      [@coverage off]
 
 let set_attribute name value = function
   | {values = `Element e; _} ->
@@ -1127,8 +1132,9 @@ let set_attribute name value = function
       e.attributes
       |> List.filter (fun (name', _) -> name' <> name)
       |> fun attributes -> (name, value)::attributes
-  | _ -> (*BISECT-IGNORE*)
+  | _ ->
     failwith "Soup.set_attribute: internal error: not an element"
+      [@coverage off]
 
 let set_classes classes element =
   classes |> String.concat " " |> fun v -> set_attribute "class" v element

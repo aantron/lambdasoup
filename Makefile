@@ -17,10 +17,8 @@ coverage :
 	BISECT_ENABLE=yes dune build @build-test
 	rm -rf $(BISECT_FILES_PATTERN)
 	(cd _build/default/test && ./test.exe)
-	bisect-ppx-report \
-	  -I _build/default/ -html $(COVERAGE_DIR)/ \
-	  -text - -summary-only \
-	  $(BISECT_FILES_PATTERN)
+	bisect-ppx-report html --expect src/ --do-not-expect src/lambdasoup.ml
+	bisect-ppx-report summary
 	@echo See $(COVERAGE_DIR)/index.html
 
 BS4_MISSING := Beautiful Soup not installed. Skipping Python performance test.
