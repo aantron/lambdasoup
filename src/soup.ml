@@ -354,10 +354,10 @@ let index_of_element element =
       |> elements
       |> fold (fun index element' ->
         if element' == element then stop.throw index else index + 1) 1
-      |> ignore;
-      failwith
+      |> ignore [@coverage off];
+      (failwith
         ("Soup.index_of_element: internal error: " ^
-        "element is not a child of its own parent"))
+        "element is not a child of its own parent")) [@coverage off])
 
 let at_most_n_children count node =
   match nth (count + 1) (children node) with
@@ -545,10 +545,10 @@ struct
         |> fold (fun index element ->
           if element == node then stop.throw index else index + 1)
           1
-        |> ignore;
-        failwith
+        |> ignore [@coverage off];
+        (failwith
           ("Soup.Selector.element_index_with_name: internal error: " ^
-           "parent does not have given child"))
+           "parent does not have given child")) [@coverage off])
 
   let conditional_mod n a = if a = 0 then n else n mod a
 
@@ -1235,4 +1235,5 @@ let read_file path = Markup.file path |> fst |> Markup.to_string
 let write_channel = output_string
 
 let write_file path data =
-  Markup.string data |> Markup.to_file path (*BISECT-IGNORE*)
+  Markup.string data |> Markup.to_file path
+  [@@coverage off]
