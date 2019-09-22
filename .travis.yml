@@ -1,7 +1,8 @@
 language: generic
 
 env:
-  - SWITCH=4.08.1 COVERAGE=yes
+  - SWITCH=4.09.0 COVERAGE=yes
+  - SWITCH=4.08.1
   - SWITCH=4.02.3
   - SWITCH=4.03.0
   - SWITCH=4.04.2
