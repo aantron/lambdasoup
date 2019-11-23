@@ -131,7 +131,10 @@ val select : string -> (_ node) -> element nodes
     In addition, you can use the empty selector to select [node] itself. In this
     case, note that if [node] is not an element (for example, it is often the
     soup node), [select] will result in nothing: [select] always results in
-    sequences of {e element} nodes only. *)
+    sequences of {e element} nodes only.
+
+    {{:https://www.w3.org/TR/CSS21/syndata.html#value-def-identifier} CSS escape
+    sequences} are supported in identifiers. *)
 
 val select_one : string -> (_ node) -> element node option
 (** Like [select], but evaluates to at most one element. Note that there is also

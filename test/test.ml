@@ -168,6 +168,27 @@ let suites = [
       test "[id='unterminated]";
       test "[id='un'escaped']");
 
+    ("parse-select-escaped" >:: fun _ ->
+      let soup = page "quoted" |> parse in
+      let test selector expected_count =
+        assert_equal ~msg:selector
+          (soup |> select selector |> count) expected_count
+      in
+
+      test "#bracket\\]" 1;
+      test "#colon\\:" 1;
+      test "#\\parenthesis\\)" 1;
+      test "#trailing-backslash\\" 1;
+      test "#b\\72 acket\\]" 1;
+      test "#b\\72\tacket\\]" 1;
+      test "#b\\72\nacket\\]" 1;
+      test "#b\\72\r\nacket\\]" 1;
+      test "#b\\000072acket\\]" 1;
+      test "#\\62racket\\]" 1;
+      test "#b\\72\racket\\]" 0;
+      test "#b\\abcdefacket\\]" 0;
+      test "#b\\ABCDEFacket\\]" 0);
+
     ("parse-select-html5" >:: fun _ ->
       let soup = page "html5" |> parse in
       let test selector expected_count =

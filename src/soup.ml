@@ -633,13 +633,16 @@ struct
     |> elements
     |> filter matches_selector
 
-  let is_numeric_char c =
+  let is_decimal_char c =
     ((Char.code c) >= (Char.code '0')) && ((Char.code c) <= (Char.code '9'))
+
+  let is_hexadecimal_char c =
+    (is_decimal_char c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
 
   let is_identifier_char c =
     let c = Char.lowercase_ascii c in
     ((Char.code c) >= (Char.code 'a') && (Char.code c) <= (Char.code 'z')) ||
-    (is_numeric_char c) || (c == '-') || (c == '_')
+    (is_decimal_char c) || (c == '-') || (c == '_')
 
   let is_whitespace_char c =
     c = ' ' || c = '\t' || c = '\n' || c = '\r'
@@ -647,18 +650,61 @@ struct
   let is_continuation_simple_selector_start_char c =
     (c == '.') || (c == '#') || (c == '[') || (c == ':')
 
+  let hexadecimal_value = function
+    | 'A' | 'a' -> 0xA
+    | 'B' | 'b' -> 0xB
+    | 'C' | 'c' -> 0xC
+    | 'D' | 'd' -> 0xD
+    | 'E' | 'e' -> 0xE
+    | 'F' | 'f' -> 0xF
+    | c -> Char.code c - Char.code '0'
+
+  let rec parse_hexadecimal_escape value count stream =
+    if count >= 6 then
+      value
+    else
+      match Stream.peek stream with
+      | Some (' ' | '\t' | '\n') ->
+        Stream.junk stream;
+        value
+      | Some '\r' ->
+        begin match Stream.npeek 2 stream with
+        | ['\r'; '\n'] ->
+          Stream.junk stream;
+          Stream.junk stream
+        | _ -> ()
+        end;
+        value
+      | Some c when is_hexadecimal_char c ->
+        Stream.junk stream;
+        let value = value * 0x10 + hexadecimal_value c in
+        parse_hexadecimal_escape value (count + 1) stream
+      | _ -> value
+
+  let parse_escape_sequence stream =
+    Stream.junk stream;
+    match Stream.peek stream with
+    | None -> '\\'
+    | Some c when is_hexadecimal_char c ->
+      begin match parse_hexadecimal_escape 0 0 stream with
+      | n when n > 0xFF -> '\x1A'
+      | n -> Char.chr n
+      end
+    | Some c ->
+      Stream.junk stream;
+      c
+
   let parse_identifier stream =
     let buffer = Buffer.create 32 in
-    let first =
-      try
-        let c = Stream.next stream in
-        if not (is_identifier_char c) then raise_notrace Exit;
-        c
-      with _ -> failwith "Soup.Selector.parse: expected an identifier"
-    in
-    Buffer.add_char buffer first;
+    begin match Stream.peek stream with
+    | Some '\\' -> ()
+    | Some c when is_identifier_char c -> ()
+    | _ -> failwith "Soup.Selector.parse: expected an identifier"
+    end;
     let rec loop () =
       match Stream.peek stream with
+      | Some '\\' ->
+        Buffer.add_char buffer (parse_escape_sequence stream); loop ()
       | Some c when is_identifier_char c ->
         Buffer.add_char buffer c; Stream.junk stream; loop ()
       | _ -> Buffer.contents buffer
@@ -778,7 +824,7 @@ struct
     let buffer = Buffer.create 16 in
     let rec loop () =
       match Stream.peek stream with
-      | Some c when is_numeric_char c ->
+      | Some c when is_decimal_char c ->
         Buffer.add_char buffer c; Stream.junk stream; loop ()
       | _ -> Buffer.contents buffer
     in
@@ -790,7 +836,7 @@ struct
     | Some ('+' as c) | Some ('-' as c) ->
       Stream.junk stream;
       (match Stream.peek stream with
-      | Some c' when is_numeric_char c' ->
+      | Some c' when is_decimal_char c' ->
         let b = parse_number stream in
         let b =
           if c = '+' then b mod a
@@ -808,7 +854,7 @@ struct
       | "odd" -> (2, 1)
       | _ -> failwith "Soup.Selector.parse: expected 'n', 'even', or 'odd'")
     | Some 'n' -> parse_modular_pattern_tail 1 stream
-    | Some c when is_numeric_char c ->
+    | Some c when is_decimal_char c ->
       let a = parse_number stream in
       (match Stream.peek stream with
       | Some 'n' -> parse_modular_pattern_tail a stream
