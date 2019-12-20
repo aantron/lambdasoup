@@ -28,6 +28,7 @@ pin-depends: [
 
 build: [
   ["dune" "build" "-p" name "-j" jobs]
+  ["dune" "runtest"] {with-test}
 ]
 
 description: """
