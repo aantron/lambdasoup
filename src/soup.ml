@@ -1,6 +1,8 @@
 (* This file is part of Lambda Soup, released under the MIT license. See
    LICENSE.md for details, or visit https://github.com/aantron/lambdasoup. *)
 
+exception Selector_parse_error of string
+
 module String =
 struct
   include String
@@ -659,6 +661,8 @@ struct
     | 'F' | 'f' -> 0xF
     | c -> Char.code c - Char.code '0'
 
+  let parse_error msg = raise (Selector_parse_error msg)
+
   let rec parse_hexadecimal_escape value count stream =
     if count >= 6 then
       value
@@ -699,7 +703,7 @@ struct
     begin match Stream.peek stream with
     | Some '\\' -> ()
     | Some c when is_identifier_char c -> ()
-    | _ -> failwith "Soup.Selector.parse: expected an identifier"
+    | _ -> parse_error "expected an identifier"
     end;
     let rec loop () =
       match Stream.peek stream with
@@ -718,14 +722,14 @@ struct
       try
         let name = parse_identifier stream in
         Name name
-      with _ -> failwith "Soup.Selector.parse: expected tag name or '*'"
+      with _ -> parse_error "expected tag name or '*'"
 
   let parse_attribute_operator stream =
     match Stream.npeek 2 stream with
     | ['='; _] -> Stream.junk stream; "="
     | [c; '='] ->
       Stream.junk stream; Stream.junk stream; Printf.sprintf "%c=" c
-    | _ -> failwith "Soup.Selector.parse: expected attribute operator"
+    | _ -> parse_error "expected attribute operator"
 
   let parse_quoted_string stream =
     match Stream.peek stream with
@@ -746,10 +750,10 @@ struct
           loop ()
         | Some c ->
           Buffer.add_char buffer c; Stream.junk stream; loop ()
-        | None -> failwith "Soup.Selector.parse: unterminated string"
+        | None -> parse_error "unterminated string"
       in
       loop ()
-    | _ -> failwith "Soup.Selector.parse: expected quoted string"
+    | _ -> parse_error "expected quoted string"
 
   let parse_string stream =
     match Stream.peek stream with
@@ -777,22 +781,22 @@ struct
     let name = parse_identifier stream in
     consume_whitespace stream;
     (match Stream.peek stream with
-    | None -> failwith "Soup.Selector.parse: unterminated attribute selector"
+    | None -> parse_error "unterminated attribute selector"
     | Some ']' -> Stream.junk stream; Present name
     | Some _ ->
       let operator = parse_attribute_operator stream in
       consume_whitespace stream;
       (match Stream.peek stream with
       | None ->
-        failwith "Soup.Selector.parse: unterminated attribute selector"
+        parse_error "unterminated attribute selector"
       | Some ']' ->
-        failwith "Soup.Selector.parse: expected value in attribute selector"
+        parse_error "expected value in attribute selector"
       | Some _ ->
         let value = parse_string stream in
         consume_whitespace stream;
         (match Stream.peek stream with
         | None ->
-          failwith "Soup.Selector.parse: unterminated attribute selector"
+          parse_error "unterminated attribute selector"
         | Some ']' ->
           Stream.junk stream;
           (match operator with
@@ -804,11 +808,11 @@ struct
           | "*=" -> Substring (name, value)
           | _ ->
             Printf.sprintf
-              "Soup.Selector.parse: invalid attribute operator '%s'" operator
-            |> failwith)
+              "invalid attribute operator '%s'" operator
+            |> parse_error)
         | Some _ ->
-          failwith
-            "Soup.Selector.parse: expected end of attribute selector (']')")))
+          parse_error
+            "expected end of attribute selector (']')")))
 
   let parse_class_selector stream =
     Stream.junk stream;
@@ -843,7 +847,7 @@ struct
           else a - (b mod a)
         in
         a, b
-      | _ -> failwith "Soup.Selector.parse: expected number after '+' or '-'")
+      | _ -> parse_error "expected number after '+' or '-'")
     | _ -> a, 0
 
   let parse_modular_pattern stream =
@@ -852,14 +856,14 @@ struct
       (match parse_identifier stream with
       | "even" -> (2, 0)
       | "odd" -> (2, 1)
-      | _ -> failwith "Soup.Selector.parse: expected 'n', 'even', or 'odd'")
+      | _ -> parse_error "expected 'n', 'even', or 'odd'")
     | Some 'n' -> parse_modular_pattern_tail 1 stream
     | Some c when is_decimal_char c ->
       let a = parse_number stream in
       (match Stream.peek stream with
       | Some 'n' -> parse_modular_pattern_tail a stream
       | _ -> (0, a))
-    | _ -> failwith "Soup.Selector.parse: expected expression"
+    | _ -> parse_error "expected expression"
 
   let parse_parenthesized_value f stream =
     match Stream.peek stream with
@@ -870,8 +874,8 @@ struct
       consume_whitespace stream;
       (match Stream.peek stream with
       | Some ')' -> Stream.junk stream; value
-      | _ -> failwith "Soup.Selector.parse: unterminated '('")
-    | _ -> failwith "Soup.Selector.parse: expected parenthesized expression"
+      | _ -> parse_error "unterminated '('")
+    | _ -> parse_error "expected parenthesized expression"
 
   let rec parse_pseudo_class_selector stream =
     Stream.junk stream;
@@ -905,9 +909,9 @@ struct
       Not selector
     | _ ->
       Printf.sprintf
-        "Soup.Selector.parse: unknown pseudo-class or pseudo-element ':%s'"
+        "unknown pseudo-class or pseudo-element ':%s'"
         function_
-      |> failwith)
+      |> parse_error)
 
   and parse_simple_selector stream =
     match Stream.peek stream with
@@ -916,7 +920,7 @@ struct
     | Some '.' -> Attribute (parse_class_selector stream)
     | Some '#' -> Attribute (parse_id_selector stream)
     | Some _ -> Type (parse_type_selector stream)
-    | None -> failwith "Soup.Selector.parse: expected simple selector"
+    | None -> parse_error "expected simple selector"
 
   let parse_simple_selector_list stream =
     let first = parse_simple_selector stream in

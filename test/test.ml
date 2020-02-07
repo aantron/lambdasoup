@@ -159,7 +159,7 @@ let suites = [
         (try
           soup |> select selector |> ignore; false
         with
-        | Failure _ -> true
+        | Soup.Selector_parse_error _ -> true
         | _ -> false) |> assert_bool "expected Failure"
       in
 
@@ -207,15 +207,18 @@ let suites = [
       assert_equal (page "google" |> parse $$ "form[action]" |> count) 1);
 
     ("parse-error" >:: fun _ ->
-      let prefix = "Soup.Selector.parse: " in
       let soup = parse "<p></p>" in
-      let test selector message =
+      let test selector expected_message =
         let result =
           try soup |> select selector |> ignore; false
-          with Failure s ->
-            if not (s = prefix ^ message) then
-              assert_failure (Printf.sprintf "%s: got \"%s\"" selector s);
-            true
+          with
+          | Failure s ->
+            assert_failure (Printf.sprintf "%s: got \"%s\"" selector s)
+          | Soup.Selector_parse_error message ->
+            if (message <> expected_message) then assert_failure
+              (Printf.sprintf "Incorrect parse error for selector '%s': expected '%s' but got '%s'"
+                 selector expected_message message)
+            else true
         in
         if not result then
           assert_failure (Printf.sprintf "%s: parse succeeded" selector)
