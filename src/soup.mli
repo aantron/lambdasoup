@@ -67,7 +67,10 @@ let _ = ul |> previous_siblings |> elements in
     for other versions can be downloaded from the
     {{:https://github.com/aantron/lambdasoup/releases} releases page}. *)
 
+(** {2 Exceptions} *)
 
+(** Raised when a CSS selector given to {!select} and similar functions is syntactically invalid. *)
+exception Selector_parse_error of string
 
 (** {2 Types} *)
 
