@@ -216,8 +216,9 @@ let suites = [
             assert_failure (Printf.sprintf "%s: got \"%s\"" selector s)
           | Soup.Parse_error message ->
             if (message <> expected_message) then assert_failure
-              (Printf.sprintf "Incorrect parse error for selector '%s': expected '%s' but got '%s'"
-                 selector expected_message message)
+              (Printf.sprintf
+                "Incorrect parse error for '%s': expected '%s' but got '%s'"
+                selector expected_message message)
             else true
         in
         if not result then

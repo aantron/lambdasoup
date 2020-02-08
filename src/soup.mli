@@ -67,10 +67,7 @@ let _ = ul |> previous_siblings |> elements in
     for other versions can be downloaded from the
     {{:https://github.com/aantron/lambdasoup/releases} releases page}. *)
 
-(** {2 Exceptions} *)
 
-(** Raised when a CSS selector given to {!select} and similar functions is syntactically invalid. *)
-exception Parse_error of string
 
 (** {2 Types} *)
 
@@ -109,6 +106,14 @@ val parse : string -> soup node
     If you need to parse XML, want finer control over parsing, or want to feed
     Lambda Soup something other than bytes, see {{:#2_Parsingsignals} Parsing
     signals}. *)
+
+exception Parse_error of string
+(** Raised when a CSS selector given to {!select} and similar functions is
+    syntactically invalid.
+
+    Note that {!parse} does not raise this exception, because the parsing of
+    HTML is done by {{:https://github.com/aantron/markup.ml} Markup.ml}. Lambda
+    Soup proper only parses CSS selectors. *)
 
 val select : string -> (_ node) -> element nodes
 (** [select selector node] is all the descendants of [node] matching CSS

@@ -1,8 +1,6 @@
 (* This file is part of Lambda Soup, released under the MIT license. See
    LICENSE.md for details, or visit https://github.com/aantron/lambdasoup. *)
 
-exception Parse_error of string
-
 module String =
 struct
   include String
@@ -433,6 +431,8 @@ let trimmed_texts node =
   |> List.map String.trim
   |> List.filter (fun s -> String.length s > 0)
 
+exception Parse_error of string
+
 module Selector :
 sig
   type t
@@ -807,12 +807,9 @@ struct
           | "$=" -> Suffix (name, value)
           | "*=" -> Substring (name, value)
           | _ ->
-            Printf.sprintf
-              "invalid attribute operator '%s'" operator
-            |> parse_error)
-        | Some _ ->
-          parse_error
-            "expected end of attribute selector (']')")))
+            Printf.ksprintf parse_error
+              "invalid attribute operator '%s'" operator)
+        | Some _ -> parse_error "expected end of attribute selector (']')")))
 
   let parse_class_selector stream =
     Stream.junk stream;
@@ -908,10 +905,8 @@ struct
       let selector = parse_parenthesized_value parse_simple_selector stream in
       Not selector
     | _ ->
-      Printf.sprintf
-        "unknown pseudo-class or pseudo-element ':%s'"
-        function_
-      |> parse_error)
+      Printf.ksprintf parse_error
+        "unknown pseudo-class or pseudo-element ':%s'" function_)
 
   and parse_simple_selector stream =
     match Stream.peek stream with
