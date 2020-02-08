@@ -1,7 +1,7 @@
 (* This file is part of Lambda Soup, released under the MIT license. See
    LICENSE.md for details, or visit https://github.com/aantron/lambdasoup. *)
 
-exception Selector_parse_error of string
+exception Parse_error of string
 
 module String =
 struct
@@ -661,7 +661,7 @@ struct
     | 'F' | 'f' -> 0xF
     | c -> Char.code c - Char.code '0'
 
-  let parse_error msg = raise (Selector_parse_error msg)
+  let parse_error msg = raise (Parse_error msg)
 
   let rec parse_hexadecimal_escape value count stream =
     if count >= 6 then

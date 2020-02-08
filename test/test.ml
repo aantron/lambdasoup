@@ -159,7 +159,7 @@ let suites = [
         (try
           soup |> select selector |> ignore; false
         with
-        | Soup.Selector_parse_error _ -> true
+        | Soup.Parse_error _ -> true
         | _ -> false) |> assert_bool "expected Failure"
       in
 
@@ -214,7 +214,7 @@ let suites = [
           with
           | Failure s ->
             assert_failure (Printf.sprintf "%s: got \"%s\"" selector s)
-          | Soup.Selector_parse_error message ->
+          | Soup.Parse_error message ->
             if (message <> expected_message) then assert_failure
               (Printf.sprintf "Incorrect parse error for selector '%s': expected '%s' but got '%s'"
                  selector expected_message message)

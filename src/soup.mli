@@ -70,7 +70,7 @@ let _ = ul |> previous_siblings |> elements in
 (** {2 Exceptions} *)
 
 (** Raised when a CSS selector given to {!select} and similar functions is syntactically invalid. *)
-exception Selector_parse_error of string
+exception Parse_error of string
 
 (** {2 Types} *)
 
