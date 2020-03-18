@@ -22,10 +22,6 @@ depends: [
   "ounit" {with-test}
 ]
 
-pin-depends: [
-  ["bisect_ppx.git" "git+https://github.com/aantron/bisect_ppx.git"]
-]
-
 build: [
   ["dune" "build" "-p" name "-j" jobs]
   ["dune" "runtest" "-p" name "-j" jobs] {with-test}
