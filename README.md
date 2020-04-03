@@ -110,6 +110,13 @@ GitHub, or send me an email at [antonbachin@yahoo.com][email]. If you find
 yourself repeatedly writing the same helper on top of Lambda Soup's functions,
 perhaps we should add it to Lambda Soup.
 
+<br/>
+
+## History
+
+Lambda Soup was originally written to answer a [Stack Overflow question][so] in
+November 2015.
+
 [docs]:         http://aantron.github.io/lambdasoup
 [postprocess]:  https://github.com/aantron/lambdasoup/blob/master/docs/postprocess.ml
 [tests]:        https://github.com/aantron/lambdasoup/blob/master/test/test.ml
@@ -120,3 +127,4 @@ perhaps we should add it to Lambda Soup.
 [traversals]:   http://aantron.github.io/lambdasoup#2_Elementarytraversals
 [combinators]:  http://aantron.github.io/lambdasoup#2_Combinators
 [markupml]:     https://github.com/aantron/markup.ml
+[so]: https://stackoverflow.com/questions/33489575/parsing-html-with-ocaml
