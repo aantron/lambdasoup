@@ -989,9 +989,15 @@ let signals root =
 
   in
 
-  traverse [] root
-  |> List.rev
-  |> Markup.of_list
+  let signals = List.rev (traverse [] root) |> Markup.of_list in
+  match root with
+  | {values =
+    `Document {roots = {values = `Element {name = "html"; _}; _}::_}; _}
+  | {values =
+    `Element {name = "html"; _}; _} ->
+    Markup.html5 signals
+  | _ ->
+    signals
 
 let pretty_print root =
   signals root

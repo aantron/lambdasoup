@@ -1029,7 +1029,7 @@ let suites = [
 
     ("pretty_print" >:: fun _ ->
       let document =
-        ("<html><head></head>" ^
+        ("<!DOCTYPE html><html><head></head>" ^
          "<body class=\"testing\">\n<p>foo</p>\n<p>bar</p>\n</body></html>")
       in
 
@@ -1046,6 +1046,15 @@ let suites = [
 
     ("multiple-roots" >:: fun _ ->
       assert_equal ("<p><p>" |> parse |> to_string) "<p></p><p></p>");
+
+    ("doctype" >:: fun _ ->
+      assert_equal
+        ("<html></html>" |> parse |> to_string)
+        "<!DOCTYPE html><html><head></head><body></body></html>";
+
+      assert_equal
+        ("<html></html>" |> parse $ "html" |> to_string)
+        "<!DOCTYPE html><html><head></head><body></body></html>");
 
     ("R.select_one" >:: fun _ ->
       assert_equal (parse "<p>" |> R.select_one "p" |> name) "p");
