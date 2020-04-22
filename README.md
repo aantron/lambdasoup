@@ -1,6 +1,6 @@
-# Lambda Soup &nbsp; [![version 0.7.0][version]][releases] [![Travis status][travis-img]][travis] [![Coverage][coveralls-img]][coveralls]
+# Lambda Soup &nbsp; [![version][version]][releases] [![Travis status][travis-img]][travis] [![Coverage][coveralls-img]][coveralls]
 
-[version]:     https://img.shields.io/badge/version-0.7.0-blue.svg
+[version]:     https://img.shields.io/badge/version-0.7.1-blue.svg
 [travis]:      https://travis-ci.org/aantron/lambdasoup/branches
 [travis-img]:  https://img.shields.io/travis/aantron/lambdasoup/master.svg
 [coveralls]:     https://coveralls.io/github/aantron/lambdasoup?branch=master
