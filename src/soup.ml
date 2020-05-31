@@ -970,7 +970,7 @@ struct
   let ($$) = ($$)
 end
 
-let signals root =
+let signals ?(force_html5=false) root =
   let root = forget_type root in
 
   let rec traverse acc = function
@@ -990,6 +990,7 @@ let signals root =
   in
 
   let signals = List.rev (traverse [] root) |> Markup.of_list in
+  if not force_html5 then signals else
   match root with
   | {values =
     `Document {roots = {values = `Element {name = "html"; _}; _}::_}; _}
@@ -999,12 +1000,12 @@ let signals root =
   | _ ->
     signals
 
-let pretty_print root =
-  signals root
+let pretty_print ?(force_html5=false) root =
+  signals ~force_html5:force_html5 root
   |> Markup.pretty_print |> (fun s -> Markup.write_html s) |> Markup.to_string
 
-let to_string root =
-  signals root |> (fun s -> Markup.write_html s) |> Markup.to_string
+let to_string ?(force_html5=false) root =
+  signals ~force_html5:force_html5 root |> (fun s -> Markup.write_html s) |> Markup.to_string
 
 let rec equal_general normalize_children n n' =
   let equal_text s s' = s = s' in

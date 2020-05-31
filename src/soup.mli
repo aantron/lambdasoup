@@ -462,11 +462,11 @@ val at_most_one_child : (_ node) -> bool
 
 (** {2 Printing} *)
 
-val to_string : (_ node) -> string
+val to_string : ?force_html5:bool -> (_ node) -> string
 (** Converts the node tree rooted at the given node to an HTML5 string,
     preserving whitespace nodes. *)
 
-val pretty_print : (_ node) -> string
+val pretty_print : ?force_html5:bool -> (_ node) -> string
 (** Converts the node tree rooted at the given node to an HTML5 string formatted
     for easy reading by humans, difference algorthims, etc.
 
@@ -494,7 +494,7 @@ val pretty_print : (_ node) -> string
     overview} may be a good place to start.
  *)
 
-val signals : (_ node) -> (Markup.signal, Markup.sync) Markup.stream
+val signals : ?force_html5:bool  -> (_ node) -> (Markup.signal, Markup.sync) Markup.stream
 (** Converts the node tree rooted at the given node to a stream of Markup.ml
     signals. This underlies {!to_string} and {!pretty_print}.
 

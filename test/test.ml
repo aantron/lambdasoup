@@ -1033,10 +1033,10 @@ let suites = [
          "<body class=\"testing\">\n<p>foo</p>\n<p>bar</p>\n</body></html>")
       in
 
-      assert_equal document (document |> parse |> to_string);
+      assert_equal document (document |> parse |> to_string ~force_html5:true);
       assert_bool "pretty_print"
         (equal_modulo_whitespace
-          (parse document) (parse document |> pretty_print |> parse)));
+          (parse document) (parse document |> pretty_print ~force_html5:true|> parse)));
 
     ("entity" >:: fun _ ->
       assert_equal ("<p>&amp;</p>" |> parse |> R.leaf_text) "&");
@@ -1049,11 +1049,11 @@ let suites = [
 
     ("doctype" >:: fun _ ->
       assert_equal
-        ("<html></html>" |> parse |> to_string)
+        ("<html></html>" |> parse |> to_string ~force_html5:true)
         "<!DOCTYPE html><html><head></head><body></body></html>";
 
       assert_equal
-        ("<html></html>" |> parse $ "html" |> to_string)
+        ("<html></html>" |> parse $ "html" |> to_string ~force_html5:true)
         "<!DOCTYPE html><html><head></head><body></body></html>");
 
     ("R.select_one" >:: fun _ ->
