@@ -1038,6 +1038,17 @@ let suites = [
         (equal_modulo_whitespace
           (parse document) (parse document |> pretty_print ~force_html5:true|> parse)));
 
+    ("pretty_print_no_doctype" >:: fun _ ->
+      let document =
+        ("<html><head></head>" ^
+         "<body class=\"testing\">\n<p>foo</p>\n<p>bar</p>\n</body></html>")
+      in
+
+      assert_equal document (document |> parse |> to_string);
+      assert_bool "pretty_print"
+        (equal_modulo_whitespace
+          (parse document) (parse document |> pretty_print |> parse)));
+
     ("entity" >:: fun _ ->
       assert_equal ("<p>&amp;</p>" |> parse |> R.leaf_text) "&");
 
