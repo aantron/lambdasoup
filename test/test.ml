@@ -1100,9 +1100,11 @@ let suites = [
 
     ("misnested-body-attributes" >:: fun _ ->
       let document1 = "<html><body id='a'><img><body class='cls' id='b'>" in
-      let document2 = "<html><body id='a' class='cls'><img>" in
+      let document2 = "<html><img><body class='cls' id='a'>" in
+      let document3 = "<html><body id='a' class='cls'><img>" in
 
-      assert_bool "equal" (equal (parse document1) (parse document2)));
+      assert_bool "equal" (equal (parse document1) (parse document2));
+      assert_bool "equal" (equal (parse document1) (parse document3)));
   ]
 ]
 
