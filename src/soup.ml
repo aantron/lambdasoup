@@ -131,7 +131,7 @@ let parse text =
       match name with
       | ns, "body" when ns = Markup.Ns.html ->
         List.fold_left (fun attributes (n, v) ->
-          match List.map fst attributes |> List.mem n with
+          match List.mem_assoc n attributes with
           | true -> attributes
           | false -> (n, v) :: attributes
         ) attributes !body_attributes
