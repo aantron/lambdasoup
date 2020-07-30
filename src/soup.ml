@@ -120,8 +120,7 @@ let parse text =
     match e with
     | `Misnested_tag ("body", _, attributes) ->
       body_attributes := !body_attributes @ attributes
-    | _ -> ()
-  in
+    | _ -> () in
   text
   |> Markup.string
   |> (fun s -> Markup.parse_html ~report s)
