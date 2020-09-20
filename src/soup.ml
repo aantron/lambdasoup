@@ -97,24 +97,44 @@ let create_document roots =
 
 let create_soup () = create_document []
 
-let from_signals signals =
+let from_signals' ~map_attributes signals =
   signals
   |> (fun s -> Markup.trees
     ~text:(fun ss -> create_text (String.concat "" ss))
     ~element:(fun name attributes children ->
       let attributes =
-        attributes |> List.map (fun ((_, n), v) -> n, v) in
+        attributes
+        |> List.map (fun ((_, n), v) -> n, v)
+        |> map_attributes name in
       create_element (snd name) attributes children)
     s)
   |> Markup.to_list
   |> create_document
 
+let from_signals =
+  from_signals' ~map_attributes:(fun _n a -> a)
+
 let parse text =
+  let body_attributes = ref [] in
+  let report _l e =
+    match e with
+    | `Misnested_tag ("body", _, attributes) ->
+      body_attributes := !body_attributes @ attributes
+    | _ -> () in
   text
   |> Markup.string
-  |> (fun s -> Markup.parse_html s)
+  |> (fun s -> Markup.parse_html ~report s)
   |> Markup.signals
-  |> from_signals
+  |> from_signals'
+    ~map_attributes:(fun name attributes ->
+      match name with
+      | ns, "body" when ns = Markup.Ns.html ->
+        List.fold_left (fun attributes (n, v) ->
+          match List.mem_assoc n attributes with
+          | true -> attributes
+          | false -> (n, v) :: attributes
+        ) attributes !body_attributes
+      | _ -> attributes)
 
 let is_document node =
   match node.values with
