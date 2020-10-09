@@ -1050,11 +1050,15 @@ let suites = [
     ("doctype" >:: fun _ ->
       assert_equal
         ("<html></html>" |> parse |> to_string)
+        "<html><head></head><body></body></html>";
+
+      assert_equal
+        ("<!DOCTYPE html><html></html>" |> parse |> to_string)
         "<!DOCTYPE html><html><head></head><body></body></html>";
 
       assert_equal
-        ("<html></html>" |> parse $ "html" |> to_string)
-        "<!DOCTYPE html><html><head></head><body></body></html>");
+        ("<!DOCTYPE html><html></html>" |> parse $ "html" |> to_string)
+        "<html><head></head><body></body></html>");
 
     ("R.select_one" >:: fun _ ->
       assert_equal (parse "<p>" |> R.select_one "p" |> name) "p");
