@@ -14,7 +14,7 @@ dev-repo: "git+https://github.com/aantron/lambdasoup.git"
 
 depends: [
   # As a consequence of depending on Dune, Lambda Soup requires OCaml 4.02.3.
-  "dune"
+  "dune" {>= "2.7.0"}
   "markup" {>= "1.0.0"}
   "ocaml" {>= "4.02.0"}
 

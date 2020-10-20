@@ -7,7 +7,7 @@
  (name build-test)
  (deps test.exe (source_tree pages)))
 
-(alias
- (name runtest)
- (deps test.exe (source_tree pages))
+(rule
+ (alias runtest)
+ (deps (source_tree pages))
  (action (run %{exe:test.exe})))
