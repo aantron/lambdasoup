@@ -1058,7 +1058,16 @@ let suites = [
 
       assert_equal
         ("<!DOCTYPE html><html></html>" |> parse $ "html" |> to_string)
-        "<html><head></head><body></body></html>");
+        "<html><head></head><body></body></html>";
+
+      let xhtml =
+        {|<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" |} ^
+        {|"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">|}
+      in
+
+      assert_equal
+        (Printf.sprintf "%s<html></html>" xhtml |> parse |> to_string)
+        (Printf.sprintf "%s<html><head></head><body></body></html>" xhtml));
 
     ("R.select_one" >:: fun _ ->
       assert_equal (parse "<p>" |> R.select_one "p" |> name) "p");
