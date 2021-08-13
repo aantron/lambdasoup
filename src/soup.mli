@@ -167,6 +167,13 @@ sig
   val ($$) : (_ node) -> string -> element nodes
 end
 
+val matches_selector : string -> (_ node) -> element node -> bool
+(** [matches_select selector root node] checks if [node] would match [selector]
+    in the [root_node] document.
+
+    [node] {e should} be a child of the [root_node].
+    If [node] is a standalone element node created with {!create_element}
+    or a child of some other root node, the result will always be [false]. *)
 
 (** {2 Options} *)
 
