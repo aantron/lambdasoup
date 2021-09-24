@@ -974,7 +974,7 @@ struct
     loop []
 end
 
-let matches_selector selector root_node node =
+let matches_selector root_node selector node =
   let root_node = forget_type root_node in
   let node = forget_type node in
   let selector = Selector.parse selector in

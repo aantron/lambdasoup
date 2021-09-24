@@ -167,7 +167,7 @@ sig
   val ($$) : (_ node) -> string -> element nodes
 end
 
-val matches_selector : string -> (_ node) -> element node -> bool
+val matches_selector : (_ node) -> string -> element node -> bool
 (** [matches_select selector root node] checks if [node] would match [selector]
     in the [root_node] document.
 

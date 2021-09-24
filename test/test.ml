@@ -343,7 +343,7 @@ let suites = [
     ("matches-selector" >:: fun _ ->
       let soup = parse "<div> <p id='foo'>bar</p> </div>" in
       let elem = select_one "div p#foo" soup |> Option.get in
-      assert_bool "element matches selector" (matches_selector "div p#foo" soup elem)
+      assert_bool "element matches selector" (matches_selector soup "div p#foo" elem)
     );
 
     ("fold_attributes" >:: fun _ ->
