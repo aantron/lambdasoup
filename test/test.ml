@@ -340,6 +340,12 @@ let suites = [
       assert_equal (soup $ "#first" |> classes) [];
       assert_equal (soup $ "#second" |> classes) ["foo"; "bar"; "baz"]);
 
+    ("matches-selector" >:: fun _ ->
+      let soup = parse "<div> <p id='foo'>bar</p> </div>" in
+      let elem = select_one "div p#foo" soup |> Option.get in
+      assert_bool "element matches selector" (matches_selector soup "div p#foo" elem)
+    );
+
     ("fold_attributes" >:: fun _ ->
       let s =
         page "list"
