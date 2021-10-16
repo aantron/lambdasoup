@@ -5,6 +5,10 @@ let map_option f = function
   | None -> None
   | Some v -> Some (f v)
 
+let unwrap_option = function
+  | None -> failwith "trying to unwrap a None"
+  | Some v -> v
+
 let page : string -> string =
   let table = Hashtbl.create 7 in
 
@@ -342,7 +346,7 @@ let suites = [
 
     ("matches-selector" >:: fun _ ->
       let soup = parse "<div> <p id='foo'>bar</p> </div>" in
-      let elem = select_one "div p#foo" soup |> Option.get in
+      let elem = select_one "div p#foo" soup |> unwrap_option in
       assert_bool "element matches selector" (matches_selector soup "div p#foo" elem)
     );
 
