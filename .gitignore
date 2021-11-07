@@ -6,3 +6,4 @@ docs/html/
 docs/*.zip
 _coverage/
 _opam/
+.vscode/
