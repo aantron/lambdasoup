@@ -23,11 +23,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: avsm/setup-ocaml@v2
+    - uses: ocaml/setup-ocaml@v2
       with:
         ocaml-compiler: ${{matrix.ocaml}}
     - run: sudo apt-get install python-bs4
-    - run: opam install --deps-only --with-test .
+    - run: opam install --deps-only --with-test . --yes
     - run: opam exec -- make test
     - run: opam exec -- make performance-test
     - run: opam lint
