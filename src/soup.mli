@@ -633,6 +633,9 @@ val unwrap : (_ node) -> unit
 (** [unwrap node] unlinks [node], and inserts all of [node]'s children as
     children of [node]'s parent at the former location of [node]. *)
 
+val prepend_root : soup node -> (_ node) -> unit
+(** [prepend_root soup node] adds [node] as the first root node of [soup]. *)
+
 val append_root : soup node -> (_ node) -> unit
 (** [append_root soup node] adds [node] as the last root node of [soup]. *)
 

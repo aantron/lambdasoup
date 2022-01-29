@@ -1195,6 +1195,11 @@ let append_root document node =
   mutate_child_list (fun f -> f @ [forget_type node]) document;
   node.parent <- Some document
 
+let prepend_root document node =
+  delete node;
+  mutate_child_list (fun f -> (forget_type node) :: f) document;
+  node.parent <- Some document
+
 let set_name new_name = function
   | {values = `Element e; _} ->
     e.name <- new_name |> String.trim |> String.lowercase_ascii
