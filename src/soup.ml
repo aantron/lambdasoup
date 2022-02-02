@@ -1197,7 +1197,7 @@ let append_root document node =
 
 let prepend_root document node =
   delete node;
-  mutate_child_list (fun f -> (forget_type node) :: f) document;
+  mutate_child_list (fun f -> (forget_type node)::f) document;
   node.parent <- Some document
 
 let set_name new_name = function
