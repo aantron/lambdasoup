@@ -869,6 +869,12 @@ let suites = [
         (element |> texts)
         ["five"; "three"; "four"; "one"; "six"; "two"; "seven"]);
 
+    ("append-prepend-root" >:: fun _ ->
+      let soup = parse "test2" in
+      append_root soup (parse "test3");
+      prepend_root soup (parse "test1");
+      assert_equal (soup |> texts) ["test1"; "test2"; "test3"]);
+
     ("delete" >:: fun _ ->
       let body = page "list" |> parse $ "body" in
       let ul = body $ "ul" in

@@ -636,6 +636,9 @@ val unwrap : (_ node) -> unit
 val append_root : soup node -> (_ node) -> unit
 (** [append_root soup node] adds [node] as the last root node of [soup]. *)
 
+val prepend_root : soup node -> (_ node) -> unit
+(** [prepend_root soup node] adds [node] as the first root node of [soup]. *)
+
 val set_name : string -> element node -> unit
 (** Sets the tag name of the given element. *)
 
