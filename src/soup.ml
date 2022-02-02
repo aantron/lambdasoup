@@ -141,7 +141,7 @@ let parse text =
         List.fold_left (fun attributes (n, v) ->
           match List.mem_assoc n attributes with
           | true -> attributes
-          | false -> (n, v) :: attributes
+          | false -> (n, v)::attributes
         ) attributes !body_attributes
       | _ -> attributes)
 
