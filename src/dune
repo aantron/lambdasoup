@@ -5,4 +5,4 @@
  (wrapped false)
  (flags (:standard -w +A -warn-error -3))
  (instrumentation (backend bisect_ppx))
- (libraries markup))
+ (libraries markup camlp-streams))
