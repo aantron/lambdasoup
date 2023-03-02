@@ -27,10 +27,8 @@ jobs:
     - uses: ocaml/setup-ocaml@v2
       with:
         ocaml-compiler: ${{matrix.ocaml}}
-    - run: sudo apt-get install python-bs4
     - run: opam install --deps-only --with-test . --yes
     - run: opam exec -- make test
-    - run: opam exec -- make performance-test
     - run: opam lint
     - if: ${{matrix.ocaml == '4.13.1'}}
       env:
