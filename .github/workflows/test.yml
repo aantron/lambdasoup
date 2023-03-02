@@ -8,6 +8,8 @@ jobs:
       fail-fast: false
       matrix:
         ocaml:
+        - 5.0.x
+        - 4.14.x
         - 4.13.1
         - 4.12.1
         - 4.11.2
@@ -19,7 +21,6 @@ jobs:
         - 4.05.0
         - 4.04.2
         - 4.03.0
-        - 4.02.3
 
     steps:
     - uses: actions/checkout@v2
