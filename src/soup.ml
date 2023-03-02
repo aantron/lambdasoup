@@ -27,19 +27,6 @@ struct
       in
       let suffix_length = measure_suffix 0 in
       String.sub s 0 (String.length s - suffix_length)
-
-  (* Convert multiple deprecation warnings into one warning. This function can
-     be removed from the module if/when Lambda Soup supports only
-     OCaml >= 4.03. *)
-  let lowercase_ascii = lowercase [@ocaml.warning "-3"]
-end
-
-module Char =
-struct
-  include Char
-
-  (* See comment by String.lowercase_ascii above. *)
-  let lowercase_ascii = lowercase [@ocaml.warning "-3"]
 end
 
 type element = unit
