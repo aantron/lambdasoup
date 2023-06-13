@@ -303,6 +303,8 @@ some text                                =>   Some "some text"
 
  *)
 
+val is_text : (_ node) -> bool
+(** Indicates whether the given node is a text node. *)
 
 
 (** {2 Elementary traversals} *)
@@ -432,6 +434,9 @@ val parent : (_ node) -> element node option
 val is_root : (_ node) -> bool
 (** Indicates whether the given node is not a soup node, and either has no
     parent, or its parent is a soup node. *)
+
+val is_document : (_ node) -> bool
+(** Indicates whether the given node is a soup (document) node. *)
 
 val child : (_ node) -> general node option
 (** [child node] evaluates to [node]'s first child. Equivalent to
