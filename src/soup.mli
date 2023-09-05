@@ -264,9 +264,6 @@ val element : (_ node) -> element node option
 val elements : (_ nodes) -> element nodes
 (** Filters non-elements from a sequence of nodes. *)
 
-val is_element : (_ node) -> bool
-(** Indicates whether the given node is an element. *)
-
 
 
 (** {2 Content access} *)
@@ -303,8 +300,6 @@ some text                                =>   Some "some text"
 
  *)
 
-val is_text : (_ node) -> bool
-(** Indicates whether the given node is a text node. *)
 
 
 (** {2 Elementary traversals} *)
@@ -437,6 +432,12 @@ val is_root : (_ node) -> bool
 
 val is_document : (_ node) -> bool
 (** Indicates whether the given node is a soup (document) node. *)
+
+val is_element : (_ node) -> bool
+(** Indicates whether the given node is an element. *)
+
+val is_text : (_ node) -> bool
+(** Indicates whether the given node is a text node. *)
 
 val child : (_ node) -> general node option
 (** [child node] evaluates to [node]'s first child. Equivalent to
