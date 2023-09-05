@@ -144,6 +144,12 @@ let is_element node =
   | `Text _ -> false
   | `Document _ -> false
 
+let is_text node =
+  match node.values with
+  | `Text _ -> true
+  | `Element _ -> false
+  | `Document _ -> false
+
 let element node =
   if is_element node then Some (forget_type node) else None
 
