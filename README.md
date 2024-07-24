@@ -1,7 +1,5 @@
-# Lambda Soup &nbsp; [![CI status][ci-img]][ci] [![Coverage][coveralls-img]][coveralls]
+# Lambda Soup &nbsp; [![Coverage][coveralls-img]][coveralls]
 
-[ci]:            https://github.com/aantron/lambdasoup/actions
-[ci-img]:        https://img.shields.io/github/workflow/status/aantron/lambdasoup/test/master
 [coveralls]:     https://coveralls.io/github/aantron/lambdasoup?branch=master
 [coveralls-img]: https://img.shields.io/coveralls/aantron/lambdasoup/master.svg
 
