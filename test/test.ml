@@ -122,6 +122,11 @@ let suites = [
       test "p:empty" 1;
       test "ul li:not(:nth-child(1))" 2;
       test ":not(ul) > li" 2;
+      test ":has([id=one])" 3;
+      test "ul:has([id=one])" 1;
+      test "ol:has([id=one])" 0;
+      test "li:has([id=one])" 0;
+      test ":has(.odd)" 4;
       test
         ("html:root > body.lists[class~=lists] > ul > li#one:nth-child(1) " ^
          "+ li#two")
@@ -155,7 +160,9 @@ let suites = [
       test "[id=\"\\\"dquotes\\\"\"]" 1;
       test "[id=\"simple'quote\"]" 1;
       test "[id='simple\\'quote']" 1;
-      test "[id='back\\slash']" 1);
+      test "[id='back\\slash']" 1;
+      test "[id=\"bracket]\"]" 1;
+      test ":has([id=\"bracket]\"])" 2);
 
     ("parse-fail-quoted" >:: fun _ ->
       let soup = page "quoted" |> parse in

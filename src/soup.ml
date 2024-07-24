@@ -485,6 +485,7 @@ struct
     | OnlyOfType
     | Empty
     | Content of string
+    | Has of simple_selector
     | Not of simple_selector
 
   and simple_selector =
@@ -595,6 +596,11 @@ struct
     | OnlyOfType -> element_count_with_name (name node) node = 1
     | Empty -> no_children node
     | Content s -> texts node |> String.concat "" |> has_substring s
+    | Has selector ->
+      descendants node
+      |> filter (fun descendant -> matches_simple_selector descendant selector)
+      |> count
+      |> fun count -> count > 0
     | Not selector -> not (matches_simple_selector node selector)
 
   and matches_simple_selector node = function
@@ -921,6 +927,9 @@ struct
       let s = parse_parenthesized_value parse_quoted_string stream in
       Content s
     | "empty" -> Empty
+    | "has" ->
+      let selector = parse_parenthesized_value parse_simple_selector stream in
+      Has selector
     | "not" ->
       let selector = parse_parenthesized_value parse_simple_selector stream in
       Not selector
