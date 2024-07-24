@@ -31,16 +31,20 @@ let () =
 
   let selector = ":has([id=mngb])" in
   assert (soup $$ selector |> count = 2);
-  measure 1000 ("select_all " ^ selector) (fun () -> soup $$ selector |> count |> ignore);
+  measure 1000 ("select_all " ^ selector)
+    (fun () -> soup $$ selector |> count |> ignore);
 
   let selector = ":has([action*=search])" in
   assert (soup $$ selector |> count = 3);
-  measure 1000 ("select_all " ^ selector) (fun () -> soup $$ selector |> count |> ignore);
+  measure 1000 ("select_all " ^ selector)
+    (fun () -> soup $$ selector |> count |> ignore);
 
   let selector = ":has([name=gbv])" in
   assert (soup $$ selector |> count = 4);
-  measure 1000 ("select_all " ^ selector) (fun () -> soup $$ selector |> count |> ignore);
+  measure 1000 ("select_all " ^ selector)
+    (fun () -> soup $$ selector |> count |> ignore);
 
   let selector = "*" in
   assert (soup $$ selector |> count > 10);
-  measure 1000 ("select_all " ^ selector) (fun () -> soup $$ selector |> count |> ignore)
+  measure 1000 ("select_all " ^ selector)
+    (fun () -> soup $$ selector |> count |> ignore)

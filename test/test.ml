@@ -123,6 +123,9 @@ let suites = [
       test "ul li:not(:nth-child(1))" 2;
       test ":not(ul) > li" 2;
       test ":has([id=one])" 3;
+      test "ul:has([id=one])" 1;
+      test "ol:has([id=one])" 0;
+      test "li:has([id=one])" 0;
       test ":has(.odd)" 4;
       test
         ("html:root > body.lists[class~=lists] > ul > li#one:nth-child(1) " ^
