@@ -47,7 +47,7 @@ let suites = [
     ("parse-select-list" >:: fun _ ->
       let soup = page "list" |> parse in
       let test selector expected_count =
-        assert_equal ~msg:selector
+        assert_equal ~msg:selector ~printer:string_of_int
           (soup |> select selector |> count) expected_count
       in
 
@@ -138,7 +138,7 @@ let suites = [
     ("parse-select-quoted" >:: fun _ ->
       let soup = page "quoted" |> parse in
       let test selector expected_count =
-        assert_equal ~msg:selector
+        assert_equal ~msg:selector ~printer:string_of_int
           (soup |> select selector |> count) expected_count
       in
 
@@ -185,7 +185,7 @@ let suites = [
     ("parse-select-escaped" >:: fun _ ->
       let soup = page "quoted" |> parse in
       let test selector expected_count =
-        assert_equal ~msg:selector
+        assert_equal ~msg:selector ~printer:string_of_int
           (soup |> select selector |> count) expected_count
       in
 
@@ -206,7 +206,7 @@ let suites = [
     ("parse-select-html5" >:: fun _ ->
       let soup = page "html5" |> parse in
       let test selector expected_count =
-        assert_equal ~msg:selector (soup $$ selector |> count) expected_count
+        assert_equal ~msg:selector  ~printer:string_of_int (soup $$ selector |> count) expected_count
       in
 
       test "nav" 1;
@@ -218,7 +218,7 @@ let suites = [
       test "footer" 1);
 
     ("parse-select-google" >:: fun _ ->
-      assert_equal (page "google" |> parse $$ "form[action]" |> count) 1);
+      assert_equal ~printer:string_of_int (page "google" |> parse $$ "form[action]" |> count) 1);
 
     ("parse-error" >:: fun _ ->
       let soup = parse "<p></p>" in
@@ -288,7 +288,7 @@ let suites = [
     ("generalized-select" >:: fun _ ->
       let soup = page "list" |> parse in
       let test root selector expected_count =
-        assert_equal ~msg:selector
+        assert_equal ~msg:selector ~printer:string_of_int 
           (root |> select selector |> count) expected_count
       in
 
@@ -301,7 +301,7 @@ let suites = [
 
     ("select-attribute-operators" >:: fun _ ->
       let soup = "<form action=\"/continue\"></form>" |> parse in
-      assert_equal (soup $$ "form[action=/continue]" |> count) 1);
+      assert_equal ~printer:string_of_int (soup $$ "form[action=/continue]" |> count) 1);
 
     ("select_one" >:: fun _ ->
       let soup = page "list" |> parse in
