@@ -127,6 +127,8 @@ let suites = [
       test "ol:has([id=one])" 0;
       test "li:has([id=one])" 0;
       test ":has(.odd)" 4;
+      test ":has(ul)" 2;
+      test ":has(caption)" 0;
       test
         ("html:root > body.lists[class~=lists] > ul > li#one:nth-child(1) " ^
          "+ li#two")
