@@ -258,6 +258,30 @@ let suites = [
       test "[foo&=bar]" "invalid attribute operator '&='";
     );
 
+    ("from_signals" >:: fun _ ->
+      let soup =
+        [
+          `Start_element (("", "p"), []);
+          `Text ["a "];
+          `Start_element (("", "em"), []);
+          `Text ["b"];
+          `End_element;
+          `Text [" c "];
+          `Start_element (("", "em"), [("", "class"), "foo"]);
+          `Text ["d"];
+          `End_element;
+          `Text [" e"];
+          `End_element;
+        ]
+        |> Markup.of_list
+        |> from_signals
+      in
+      assert_equal (soup $$ ".foo" |> count) 1;
+      assert_equal (soup $ ".foo" |> name) "em";
+      assert_equal (soup $ ".foo" |> leaf_text) (Some "d");
+      assert_equal (soup |> texts |> String.concat "") "a b c d e";
+    );
+
     ("generalized-select" >:: fun _ ->
       let soup = page "list" |> parse in
       let test root selector expected_count =
@@ -761,7 +785,9 @@ let suites = [
       set_attribute "id" "foo" element;
       set_attribute "class" "foo bar" element;
 
+      assert_bool "not is_document" (is_document element |> not);
       assert_bool "is_element" (is_element element);
+      assert_bool "not is_text" (is_text element |> not);
       assert_equal (name element) "p";
 
       set_name "li" element;
@@ -777,7 +803,10 @@ let suites = [
     ("create_text" >:: fun _ ->
       let node = create_text "foo" in
 
+      assert_bool "not is_document" (is_document node |> not);
       assert_bool "not is_element" (is_element node |> not);
+      assert_bool "is_text" (is_text node);
+
       assert_equal (node |> leaf_text) (Some "foo");
       assert_equal (node |> texts) ["foo"];
       assert_equal (node |> parent) None;
@@ -786,7 +815,10 @@ let suites = [
     ("create_soup" >:: fun _ ->
       let soup = create_soup () in
 
+      assert_bool "is_document" (is_document soup);
       assert_bool "not is_element" (is_element soup |> not);
+      assert_bool "not is_text" (is_text soup |> not);
+
       assert_equal (soup |> children |> count) 0);
 
     ("create_element-fancy" >:: fun _ ->

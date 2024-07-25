@@ -729,7 +729,7 @@ struct
     begin match Stream.peek stream with
     | Some '\\' -> ()
     | Some c when is_identifier_char c -> ()
-    | _ -> parse_error "expected an identifier"
+    | _ -> (parse_error [@coverage off]) "expected an identifier"
     end;
     let rec loop () =
       match Stream.peek stream with
