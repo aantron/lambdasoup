@@ -122,11 +122,12 @@ let suites = [
       test "p:empty" 1;
       test "ul li:not(:nth-child(1))" 2;
       test ":not(ul) > li" 2;
-      test ":has([id=one])" 3;
+      test ":has(#one)" 3;
       test "ul:has([id=one])" 1;
-      test "ol:has([id=one])" 0;
+      test "ol:has(#one)" 0;
       test "li:has([id=one])" 0;
       test ":has(.odd)" 4;
+      test "ul:has(.even)" 1;
       test ":has(ul)" 2;
       test ":has(caption)" 0;
       test
