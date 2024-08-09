@@ -598,6 +598,7 @@ struct
     | Content s -> texts node |> String.concat "" |> has_substring s
     | Has selector ->
       descendants node
+      |> filter (fun descendant -> not (is_text descendant))
       |> filter (fun descendant -> matches_simple_selector descendant selector)
       |> count
       |> fun count -> count > 0
