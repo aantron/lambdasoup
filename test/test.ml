@@ -357,6 +357,7 @@ let suites = [
       in
 
       value "body" "class" (Some "lists");
+      value "body" "my:attr" (Some "value");
       value "li#two" "id" (Some "two");
       value "html" "id" None;
 
