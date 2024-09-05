@@ -100,9 +100,10 @@ let from_signals' ~map_attributes signals =
     ~element:(fun name attributes children ->
       let attributes =
         attributes
-        |> List.map (fun ((ns, n), v) -> match ns with
-            | "" -> (n, v)
-            | _ -> (ns ^ ":" ^ n, v))
+        |> List.map (fun ((ns, n), v) ->
+          match ns with
+          | "" -> (n, v)
+          | _ -> (ns ^ ":" ^ n, v))
         |> map_attributes name in
       create_element (snd name) attributes children)
     s)
