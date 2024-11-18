@@ -1,14 +1,26 @@
-# Lambda Soup &nbsp; [![Coverage][coveralls-img]][coveralls]
+<h1 align="center">
+<img alt="Lambda Soup" src="https://raw.githubusercontent.com/aantron/lambdasoup/logo/docs/logo.png" width="300">
+</img>
+<br>
+Lambda Soup
+</h1>
 
 [coveralls]:     https://coveralls.io/github/aantron/lambdasoup?branch=master
 [coveralls-img]: https://img.shields.io/coveralls/aantron/lambdasoup/master.svg
 
-Lambda Soup is a functional HTML scraping and manipulation library for OCaml
+**Lambda Soup** is a functional HTML scraping and manipulation library for OCaml
 aimed at being easy to use.
 
-![Lambda Soup usage example][sample]
+<br><br>
+
+<p align="center">
+<img alt="Lambda Soup usage example" src="https://raw.githubusercontent.com/aantron/lambdasoup/master/docs/sample.gif">
+</img>
+</p>
 
 [sample]: https://raw.githubusercontent.com/aantron/lambdasoup/master/docs/sample.gif
+
+<br><br>
 
 Lambda Soup is *simple*. It provides a set of
 [elementary traversals][traversals] for getting from node to node, familiar
